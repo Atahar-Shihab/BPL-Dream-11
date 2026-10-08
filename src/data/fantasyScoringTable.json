@@ -1,0 +1,5 @@
+{
+  "batting": {"run": 1, "fourBonus": 1, "sixBonus": 2, "centuryBonus": 16, "halfCenturyBonus": 8},
+  "bowling": {"wicket": 25, "maiden": 12, "threeWicketBonus": 4, "fiveWicketBonus": 16},
+  "fielding": {"catch": 8, "stumping": 12, "runOut": 12}
+}
