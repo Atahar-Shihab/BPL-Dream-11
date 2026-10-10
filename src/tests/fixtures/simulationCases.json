@@ -1,0 +1,4 @@
+[
+  {"scenario": "High scoring chase", "target": 186, "balls": 120, "winProbability": 0.52},
+  {"scenario": "Low scoring defence", "target": 134, "balls": 120, "winProbability": 0.48}
+]
