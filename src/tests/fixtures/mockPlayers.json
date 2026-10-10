@@ -1,0 +1,4 @@
+[
+  {"id": 1, "name": "Shakib Al Hasan", "role": "All-Rounder", "price": 50000, "rating": 9.8},
+  {"id": 2, "name": "Mustafizur Rahman", "role": "Bowler", "price": 42000, "rating": 9.5}
+]
