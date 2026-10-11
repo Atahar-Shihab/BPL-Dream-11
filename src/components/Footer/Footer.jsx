@@ -1,4 +1,4 @@
-import { Heart, Globe, ChevronUp, ExternalLink, Code2, MessageCircle } from 'lucide-react';
+import { Heart, Globe, ChevronUp, Code2, MessageCircle } from 'lucide-react';
 import { useScrollReveal } from '../../hooks/useScrollAnimations';
 import { LOGO_FOOTER } from '../../utils/assets';
 

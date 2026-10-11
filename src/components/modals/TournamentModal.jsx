@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { X, Trophy, Award, Flame, CheckCircle2, Lock, Zap } from 'lucide-react';
-import { playCheerSound } from '../../utils/soundEffects';
+import { X, Trophy, CheckCircle2, Lock, Zap } from 'lucide-react';
 
 const INITIAL_STANDINGS = [
   { rank: 1, name: 'Comilla Victorians', played: 6, won: 5, lost: 1, pts: 10, nrr: '+1.420' },

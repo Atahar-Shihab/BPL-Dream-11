@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { X, Shield, Star, Award, Zap, Activity, Check, Plus } from 'lucide-react';
+import { X, Star, Activity, Plus } from 'lucide-react';
 import { playBatShotSound, playWhooshSound } from '../../utils/soundEffects';
 import { USER_PLACEHOLDER } from '../../utils/assets';
 
@@ -28,7 +28,6 @@ const PlayerModal = ({
   const battingScore = Math.min(99, Math.round((player.strikeRate || 100) * 0.65));
   const bowlingScore = player.wickets ? Math.min(98, 70 + Math.round(player.wickets / 5)) : 45;
   const fieldingScore = Math.min(99, Math.round(player.rating * 10));
-  const clutchScore = Math.min(99, Math.round(player.rating * 9.8));
 
   return (
     <div

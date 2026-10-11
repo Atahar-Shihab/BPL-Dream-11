@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, ArrowRightLeft, Star, Swords, Award, TrendingUp } from 'lucide-react';
+import { X, ArrowRightLeft } from 'lucide-react';
 import { playWhooshSound } from '../../utils/soundEffects';
 import { USER_PLACEHOLDER } from '../../utils/assets';
 

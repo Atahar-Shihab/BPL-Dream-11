@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Play, RotateCcw, Trophy, Zap, ShieldAlert, Award, Star, Crown } from 'lucide-react';
-import { playBatShotSound, playCoinSound, playCheerSound, playRemoveSound } from '../../utils/soundEffects';
+import { X, Play, RotateCcw, Trophy, Star, Crown, Award } from 'lucide-react';
+import { playBatShotSound, playCheerSound, playRemoveSound } from '../../utils/soundEffects';
 import { triggerGrandCelebration, triggerCoinShower } from '../../utils/confetti';
 import { toast } from 'react-toastify';
 
@@ -10,6 +10,11 @@ const OPPONENT_TEAMS = [
   { id: 'rangpur', name: 'Rangpur Riders', rating: 9.2, color: 'from-blue-600 to-indigo-500' },
   { id: 'sylhet', name: 'Sylhet Strikers', rating: 9.1, color: 'from-emerald-600 to-teal-500' },
 ];
+
+const generateOpponentTarget = () => ({
+  runs: Math.floor(45 + Math.random() * 25),
+  wickets: Math.floor(2 + Math.random() * 3),
+});
 
 const MatchSimulatorModal = ({
   isOpen,
@@ -47,14 +52,12 @@ const MatchSimulatorModal = ({
     setMatchStatus('simulating');
     setCurrentBall(0);
     setUserScore({ runs: 0, wickets: 0 });
-    setOpponentScore({ runs: 0, wickets: 0 });
     setCommentary([]);
     setMatchResult(null);
 
     // Initial opponent target to beat
-    const targetRuns = Math.floor(45 + Math.random() * 25);
-    const opponentWickets = Math.floor(2 + Math.random() * 3);
-    setOpponentScore({ runs: targetRuns, wickets: opponentWickets });
+    const target = generateOpponentTarget();
+    setOpponentScore(target);
 
     let runs = 0;
     let wickets = 0;
@@ -105,9 +108,9 @@ const MatchSimulatorModal = ({
       setCommentary((prev) => [ballText, ...prev.slice(0, 7)]);
 
       // Check early chase win
-      if (runs > targetRuns || ball >= totalBalls || wickets >= 6) {
+      if (runs > target.runs || ball >= totalBalls || wickets >= 6) {
         clearInterval(ballInterval);
-        endMatch(runs, wickets, targetRuns, playerPoints);
+        endMatch(runs, wickets, target.runs, playerPoints);
       }
     }, 450);
 
@@ -144,6 +147,13 @@ const MatchSimulatorModal = ({
       onRewardCoins(2500);
     }
   };
+
+  // Find MVP
+  const topPlayerId = Object.keys(fantasyPoints).reduce(
+    (best, id) => (fantasyPoints[id] > (fantasyPoints[best] || 0) ? id : best),
+    null
+  );
+  const mvpPlayer = topPlayerId ? selectedPlayers.find((p) => p.id === Number(topPlayerId)) : null;
 
   return (
     <div
@@ -268,7 +278,7 @@ const MatchSimulatorModal = ({
                   </p>
                 ))
               ) : (
-                <p className="text-neutral-600 italic">Press "Start Match Simulation" to bowl the first over...</p>
+                <p className="text-neutral-600 italic">Press &quot;Start Match Simulation&quot; to bowl the first over...</p>
               )}
             </div>
           </div>
@@ -286,6 +296,13 @@ const MatchSimulatorModal = ({
               <p className="text-xs opacity-90">
                 {matchResult.won ? `Won by ${matchResult.margin}` : `Lost by ${matchResult.margin}`}
               </p>
+
+              {mvpPlayer && (
+                <div className="mt-2 text-xs flex items-center justify-center gap-1.5 text-yellow-300 font-bold">
+                  <Award className="w-3.5 h-3.5" /> MVP of the Match: {mvpPlayer.playerName} ({fantasyPoints[mvpPlayer.id]} pts)
+                </div>
+              )}
+
               <div className="mt-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-400 text-neutral-950 font-black text-xs">
                 <span>+{matchResult.reward.toLocaleString()} Bonus Coins Awarded!</span>
               </div>
