@@ -5,9 +5,9 @@ import ThreeCricketStadium from '../ThreeCanvas/ThreeCricketStadium';
 import { useScrollReveal } from '../../hooks/useScrollAnimations';
 
 const TYPE_STRINGS = [
-  'Ultimate Dream 11 Cricket Team',
+  'Ultimate Dream XI',
   'BPL Championship Squad',
-  'World Class Starting XI',
+  'World-Class Starting XI',
 ];
 
 const Banner = () => {
@@ -28,7 +28,7 @@ const Banner = () => {
           setCharIndex((prev) => prev + 1);
 
           if (charIndex + 1 === currentString.length) {
-            setTimeout(() => setIsDeleting(true), 1800);
+            setTimeout(() => setIsDeleting(true), 2000);
           }
         } else {
           setTypedText(currentString.slice(0, charIndex - 1));
@@ -40,7 +40,7 @@ const Banner = () => {
           }
         }
       },
-      isDeleting ? 35 : 65
+      isDeleting ? 30 : 60
     );
 
     return () => clearTimeout(timeout);
@@ -75,11 +75,15 @@ const Banner = () => {
         {/* 3D Interactive Cricket Ball */}
         <ThreeCricketStadium />
 
-        <h1 className="mt-4 max-w-3xl text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl">
-          Assemble Your{' '}
-          <span className="text-yellow-400 inline-block min-w-[12ch]">
-            {typedText}
-            <span className="animate-blink text-yellow-300">|</span>
+        <h1 className="mt-4 max-w-3xl text-white font-extrabold tracking-tight">
+          <span className="block text-2xl sm:text-3xl lg:text-4xl text-neutral-100 font-bold">
+            Assemble Your
+          </span>
+          <span className="block mt-1 sm:mt-1.5 h-11 sm:h-14 lg:h-16 flex items-center justify-center overflow-hidden">
+            <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-300 to-lime-300 whitespace-nowrap inline-flex items-center">
+              {typedText}
+              <span className="animate-blink text-yellow-300 ml-0.5">|</span>
+            </span>
           </span>
         </h1>
         <p className="banner-subtitle">Build a team that plays beyond boundaries.</p>
