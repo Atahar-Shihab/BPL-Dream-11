@@ -99,16 +99,16 @@ const Banner = () => {
         {/* Floating Stats Badges */}
         <div className="flex flex-wrap justify-center gap-4 mt-8 sm:mt-10">
           <div className="stat-badge animate-slideUp" style={{ animationDelay: '0.2s' }}>
-            <span className="text-xl font-black text-yellow-400">18</span>
-            <span className="text-[11px] text-white/60">Star Players</span>
+            <span className="text-xl font-black text-yellow-400">32+</span>
+            <span className="text-[11px] text-white/70 font-semibold">Star Players</span>
           </div>
           <div className="stat-badge animate-slideUp" style={{ animationDelay: '0.4s' }}>
-            <span className="text-xl font-black text-emerald-400">8</span>
-            <span className="text-[11px] text-white/60">Countries</span>
+            <span className="text-xl font-black text-emerald-400">10+</span>
+            <span className="text-[11px] text-white/70 font-semibold">Countries</span>
           </div>
           <div className="stat-badge animate-slideUp" style={{ animationDelay: '0.6s' }}>
             <span className="text-xl font-black text-blue-400">6</span>
-            <span className="text-[11px] text-white/60">Dream XI Slots</span>
+            <span className="text-[11px] text-white/70 font-semibold">Dream XI Slots</span>
           </div>
         </div>
       </div>
