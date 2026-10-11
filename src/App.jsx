@@ -15,7 +15,7 @@ import TournamentModal from './components/modals/TournamentModal';
 import { triggerConfetti } from './utils/confetti';
 import { playCoinSound, playBatShotSound } from './utils/soundEffects';
 
-import { DATA_JSON_URL } from './utils/assets';
+import { DATA_JSON_URL, getAssetUrl } from './utils/assets';
 
 const STARTING_COINS = 65000;
 const TEAM_LIMIT = 6;
@@ -42,7 +42,15 @@ function App() {
         return response.json();
       })
       .then((data) => {
-        if (isActive) setPlayers(data);
+        if (isActive) {
+          const resolved = data.map((p) => ({
+            ...p,
+            playerImg: p.playerImg && p.playerImg.startsWith('http')
+              ? p.playerImg
+              : getAssetUrl(p.playerImg || 'assets/user.png'),
+          }));
+          setPlayers(resolved);
+        }
       })
       .catch(() => {
         if (isActive) setLoadError('Players could not be loaded. Please refresh the page.');
