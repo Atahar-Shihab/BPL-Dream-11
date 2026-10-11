@@ -14,12 +14,6 @@ const CricketPitchView = ({
 }) => {
   const [activePlayer, setActivePlayer] = useState(null);
 
-  // Categorize selected players into tactical field zones
-  const keepers = selectedPlayers.filter((p) => p.playerType.toLowerCase().includes('wicketkeeper'));
-  const batsmen = selectedPlayers.filter((p) => p.playerType === 'Batsman');
-  const allRounders = selectedPlayers.filter((p) => p.playerType === 'All-Rounder');
-  const bowlers = selectedPlayers.filter((p) => p.playerType === 'Bowler');
-
   // Ordered list of selected players to place into 6 tactical slots
   const slots = [
     { title: 'WK / Keeper End', top: '12%', left: '50%' },

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ShieldCheck, AlertTriangle, Zap, DollarSign, Globe, Award, Share2, Download } from 'lucide-react';
+import { ShieldCheck, AlertTriangle, Zap, Share2, Download } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { playCoinSound, playCheerSound } from '../../utils/soundEffects';
 import { generateSquadPoster } from '../../utils/posterExporter';
@@ -95,7 +95,7 @@ const TeamAnalytics = ({
             Squad Tactical Analytics
           </h3>
           <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-            Real-time balance, tournament rule check & fantasy power rating
+            Real-time balance, tournament rules & power rating ({selectedPlayers.length}/{teamLimit} players)
           </p>
         </div>
 
