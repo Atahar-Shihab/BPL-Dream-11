@@ -1,2 +1,9 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+@theme {
+  --font-sans: 'Inter', 'Hind Siliguri', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Outfit', 'Plus Jakarta Sans', 'Inter', 'Hind Siliguri', sans-serif;
+  --color-primary-accent: #e7fb25;
+  --color-primary-hover: #d9ed16;
+}
