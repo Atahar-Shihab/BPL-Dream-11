@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Flame, Bell, ChevronRight } from 'lucide-react';
+import { Flame, ChevronRight } from 'lucide-react';
 
 const NEWS_ITEMS = [
   '⚡ BREAKING: Shakib Al Hasan signs with Fortune Barishal for record auction price!',

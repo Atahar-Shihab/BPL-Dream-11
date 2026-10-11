@@ -6,11 +6,11 @@ import { useEffect, useRef, useState } from 'react';
  */
 const AnimatedCounter = ({ value, duration = 600, prefix = '', suffix = '', className = '' }) => {
   const [displayValue, setDisplayValue] = useState(value);
-  const previousValue = useRef(value);
-  const animationRef = useRef(null);
+  const startRef = useRef(value);
 
   useEffect(() => {
-    const start = previousValue.current;
+    let frameId;
+    const start = startRef.current;
     const end = value;
     const diff = end - start;
 
@@ -29,27 +29,27 @@ const AnimatedCounter = ({ value, duration = 600, prefix = '', suffix = '', clas
       setDisplayValue(current);
 
       if (progress < 1) {
-        animationRef.current = requestAnimationFrame(animate);
+        frameId = requestAnimationFrame(animate);
       } else {
-        previousValue.current = end;
+        startRef.current = end;
       }
     };
 
-    animationRef.current = requestAnimationFrame(animate);
+    frameId = requestAnimationFrame(animate);
 
     return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
+      if (frameId) {
+        cancelAnimationFrame(frameId);
       }
     };
   }, [value, duration]);
 
-  const isGaining = value > previousValue.current;
+  const isGaining = displayValue < value;
 
   return (
     <span
       className={`inline-flex items-center tabular-nums transition-colors duration-300 ${
-        isGaining ? 'text-emerald-500' : ''
+        isGaining ? 'text-emerald-500 font-bold' : ''
       } ${className}`}
     >
       {prefix}{displayValue.toLocaleString()}{suffix}

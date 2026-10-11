@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Coins, Menu, X, Volume2, VolumeX, Moon, Sun, Trophy } from 'lucide-react';
 import Currency from '/assets/Currency.png';
 import AnimatedCounter from '../common/AnimatedCounter';
@@ -13,11 +13,7 @@ const Navbar = ({
   onOpenTournamentModal,
 }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [soundOn, setSoundOn] = useState(true);
-
-  useEffect(() => {
-    setSoundOn(isSoundEnabled());
-  }, []);
+  const [soundOn, setSoundOn] = useState(() => isSoundEnabled());
 
   const toggleSound = () => {
     const next = !soundOn;
