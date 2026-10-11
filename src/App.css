@@ -789,6 +789,18 @@ html.dark .empty-team {
   border-color: #1e293b;
   color: #94a3b8;
 }
+html.dark input, html.dark select {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+html.dark select option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+html.dark input::placeholder {
+  color: #64748b !important;
+}
 
 /* ── Cricket Pitch Tactical Field ───────────────────── */
 .cricket-pitch-container {

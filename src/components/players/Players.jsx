@@ -155,13 +155,14 @@ const Players = ({
         <div className="flex flex-wrap items-center gap-2.5 mb-6 animate-fadeIn">
           {/* Search Box */}
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 dark:text-neutral-500 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by name, team, country..."
-              className="w-full pl-9 pr-3 py-2.5 text-sm rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 outline-none transition"
+              aria-label="Search players by name, team, or country"
+              className="w-full pl-9 pr-3 py-2.5 text-sm rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 outline-none transition"
             />
           </div>
 
@@ -170,10 +171,11 @@ const Players = ({
             <select
               value={filterRole}
               onChange={(e) => setFilterRole(e.target.value)}
-              className="px-3 py-2.5 text-xs font-semibold rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:border-yellow-400 outline-none cursor-pointer"
+              aria-label="Filter players by role"
+              className="px-3 py-2.5 text-xs font-semibold rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-800 dark:text-white focus:border-yellow-400 outline-none cursor-pointer"
             >
               {PLAYER_TYPES.map((type) => (
-                <option key={type} value={type}>
+                <option key={type} value={type} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100">
                   {type}
                 </option>
               ))}
@@ -185,10 +187,11 @@ const Players = ({
             <select
               value={filterFranchise}
               onChange={(e) => setFilterFranchise(e.target.value)}
-              className="px-3 py-2.5 text-xs font-semibold rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:border-yellow-400 outline-none cursor-pointer"
+              aria-label="Filter players by franchise"
+              className="px-3 py-2.5 text-xs font-semibold rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-800 dark:text-white focus:border-yellow-400 outline-none cursor-pointer"
             >
               {FRANCHISES.map((team) => (
-                <option key={team} value={team}>
+                <option key={team} value={team} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100">
                   {team}
                 </option>
               ))}
@@ -199,16 +202,17 @@ const Players = ({
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="px-3 py-2.5 text-xs font-semibold rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:border-yellow-400 outline-none cursor-pointer"
+            aria-label="Sort players"
+            className="px-3 py-2.5 text-xs font-semibold rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-800 dark:text-white focus:border-yellow-400 outline-none cursor-pointer"
           >
-            <option value="name">Sort: Name (A-Z)</option>
-            <option value="rating">Sort: Top Rating ★</option>
-            <option value="price-low">Sort: Price (Low → High)</option>
-            <option value="price-high">Sort: Price (High → Low)</option>
+            <option value="name" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100">Sort: Name (A-Z)</option>
+            <option value="rating" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100">Sort: Top Rating ★</option>
+            <option value="price-low" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100">Sort: Price (Low → High)</option>
+            <option value="price-high" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100">Sort: Price (High → Low)</option>
           </select>
 
           {/* Results count pill */}
-          <span className="text-xs text-neutral-400 font-bold px-2 py-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg">
+          <span className="text-xs text-neutral-500 dark:text-neutral-300 font-bold px-2.5 py-2 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl">
             {filteredPlayers.length} / {players.length} Players
           </span>
         </div>
