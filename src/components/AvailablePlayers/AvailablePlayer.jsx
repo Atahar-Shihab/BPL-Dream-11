@@ -22,24 +22,26 @@ const AvailablePlayer = ({ player, isSelected, isAtLimit, onAddPlayer, onRemoveP
               onError={(event) => { event.currentTarget.src = USER_PLACEHOLDER; }}
             />
             {/* Hover overlay with quick-view */}
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
+            <div className="absolute inset-0 bg-neutral-950/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
               <button
                 type="button"
                 onClick={() => setModalOpen(true)}
-                className="px-3 py-2 rounded-xl bg-white/20 text-white text-xs font-bold backdrop-blur-sm hover:bg-white/30 transition flex items-center gap-1.5"
+                aria-label={`View detailed profile for ${player.playerName}`}
+                className="px-3.5 py-2 rounded-xl bg-white/20 text-white text-xs font-bold backdrop-blur-md hover:bg-white/30 transition flex items-center gap-1.5 shadow-lg active:scale-95"
               >
                 <Eye className="w-3.5 h-3.5" /> Quick View
               </button>
             </div>
             {/* Player type badge */}
-            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-yellow-400 text-neutral-950 text-[10px] font-bold shadow">
+            <span className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-yellow-400 text-neutral-950 text-[10px] font-black uppercase tracking-wider shadow-md">
               {player.playerType}
             </span>
             {player.isOverseas && (
-              <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-blue-500 text-white text-[10px] font-bold shadow">
+              <span className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-blue-600 text-white text-[10px] font-bold shadow-md">
                 Overseas
               </span>
             )}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/50 to-transparent" />
           </div>
           <div className="player-card-body">
             <h3 className="player-name"><FaUser aria-hidden="true" />{player.playerName}</h3>
@@ -61,6 +63,7 @@ const AvailablePlayer = ({ player, isSelected, isAtLimit, onAddPlayer, onRemoveP
                   onAddPlayer(player);
                 }}
                 disabled={isSelected || isAtLimit}
+                aria-label={isSelected ? `${player.playerName} is selected` : isAtLimit ? 'Team limit reached' : `Add ${player.playerName} to squad for $${player.price.toLocaleString()}`}
                 className={isSelected ? 'choose-button is-selected' : 'choose-button'}
               >
                 {isSelected ? 'Selected ✓' : isAtLimit ? 'Team Full' : 'Choose Player'}

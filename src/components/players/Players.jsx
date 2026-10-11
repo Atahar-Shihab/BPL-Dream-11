@@ -3,7 +3,7 @@ import AvailablePlayer from '../AvailablePlayers/AvailablePlayer';
 import SelectedPlayers from './SelectedPlayers';
 import { useStaggerReveal, useScrollReveal } from '../../hooks/useScrollAnimations';
 import { playWhooshSound } from '../../utils/soundEffects';
-import { Search, Filter, ArrowRightLeft, ShieldCheck } from 'lucide-react';
+import { Search, ArrowRightLeft } from 'lucide-react';
 import PlayerGridSkeleton from '../common/PlayerGridSkeleton';
 import PlayerCompareModal from '../modals/PlayerCompareModal';
 
