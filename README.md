@@ -2,8 +2,8 @@
 
 > Assemble your championship squad, simulate high-stakes T20 matches, inspect 2.5D tactical pitch formations, and compete with 32 world cricket superstars!
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Visit_App-success?style=for-the-badge&logo=githubpages&logoColor=white)](https://atahar-shihab.github.io/BPL-Dream11-project/)
-[![GitHub Actions CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Pages-blue?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/Atahar-Shihab/BPL-Dream11-project/actions)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Visit_App-success?style=for-the-badge&logo=githubpages&logoColor=white)](https://atahar-shihab.github.io/BPL-Dream-11/)
+[![GitHub Actions CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Pages-blue?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/Atahar-Shihab/BPL-Dream-11/actions)
 [![React 19](https://img.shields.io/badge/React-19.2-61dafb?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Three.js](https://img.shields.io/badge/Three.js-3D_Engine-black?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4.3-38b2ac?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
@@ -12,7 +12,7 @@
 
 ## 🌟 Live Deployment
 
-🔗 **Experience the Live App:** [https://atahar-shihab.github.io/BPL-Dream11-project/](https://atahar-shihab.github.io/BPL-Dream11-project/)
+🔗 **Experience the Live App:** [https://atahar-shihab.github.io/BPL-Dream-11/](https://atahar-shihab.github.io/BPL-Dream-11/)
 
 ---
 
@@ -79,8 +79,8 @@ Features world-class cricket icons and BPL superstars:
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/Atahar-Shihab/BPL-Dream11-project.git
-cd BPL-Dream11-project
+git clone https://github.com/Atahar-Shihab/BPL-Dream-11.git
+cd BPL-Dream-11
 ```
 
 ### 2. Install dependencies
