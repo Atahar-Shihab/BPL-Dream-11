@@ -1,187 +1,44 @@
-import { useEffect, useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import './App.css';
-import Navbar from './components/Navbar/Navbar';
-import Banner from './components/banner/Banner';
-import StatsMarquee from './components/Stats/StatsMarquee';
-import Players from './components/players/Players';
-import Newsletter from './components/Newsletter/Newsletter';
-import Footer from './components/Footer/Footer';
-import ScrollProgress from './components/common/ScrollProgress';
-import LiveTicker from './components/common/LiveTicker';
-import ClaimCoinsModal from './components/modals/ClaimCoinsModal';
-import MatchSimulatorModal from './components/modals/MatchSimulatorModal';
-import TournamentModal from './components/modals/TournamentModal';
-import { triggerConfetti } from './utils/confetti';
-import { playCoinSound, playBatShotSound } from './utils/soundEffects';
+import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/Footer';
+import ScrollProgress from './components/layout/ScrollProgress';
+import LiveTicker from './components/layout/LiveTicker';
+import Newsletter from './components/layout/Newsletter';
+import Banner from './features/hero/Banner';
+import StatsMarquee from './features/hero/StatsMarquee';
+import Players from './features/players/Players';
+import ClaimCoinsModal from './features/tournament/ClaimCoinsModal';
+import MatchSimulatorModal from './features/simulator/MatchSimulatorModal';
+import TournamentModal from './features/tournament/TournamentModal';
+import { ThemeProvider } from './context/ThemeContext';
+import { SquadProvider } from './context/SquadContext';
+import { useSquad } from './context/useSquad';
 
-import { DATA_JSON_URL, getAssetUrl } from './utils/assets';
-
-const STARTING_COINS = 65000;
-const TEAM_LIMIT = 6;
-
-function App() {
-  const [players, setPlayers] = useState([]);
-  const [selectedPlayers, setSelectedPlayers] = useState([]);
-  const [coin, setCoin] = useState(STARTING_COINS);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState('');
-  const [claimModalOpen, setClaimModalOpen] = useState(false);
-  const [matchSimOpen, setMatchSimOpen] = useState(false);
-  const [tournamentModalOpen, setTournamentModalOpen] = useState(false);
-  const [captainId, setCaptainId] = useState(null);
-  const [viceCaptainId, setViceCaptainId] = useState(null);
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  useEffect(() => {
-    let isActive = true;
-
-    fetch(DATA_JSON_URL)
-      .then((response) => {
-        if (!response.ok) throw new Error('Could not load the player list.');
-        return response.json();
-      })
-      .then((data) => {
-        if (isActive) {
-          const resolved = data.map((p) => ({
-            ...p,
-            playerImg: p.playerImg && p.playerImg.startsWith('http')
-              ? p.playerImg
-              : getAssetUrl(p.playerImg || 'assets/user.png'),
-          }));
-          setPlayers(resolved);
-        }
-      })
-      .catch(() => {
-        if (isActive) setLoadError('Players could not be loaded. Please refresh the page.');
-      })
-      .finally(() => {
-        if (isActive) setLoading(false);
-      });
-
-    return () => { isActive = false; };
-  }, []);
-
-  // Sync theme
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkMode]);
-
-  const toggleDarkMode = () => {
-    setIsDarkMode((prev) => !prev);
-  };
-
-  const addPlayer = (player) => {
-    if (selectedPlayers.some((selected) => selected.id === player.id)) {
-      toast.info(`${player.playerName} is already in your team.`);
-      return;
-    }
-    if (selectedPlayers.length >= TEAM_LIMIT) {
-      toast.error(`Your team can have up to ${TEAM_LIMIT} players.`);
-      return;
-    }
-    if (coin < player.price) {
-      toast.error('You do not have enough coins. Claim a free grant in the top bar!');
-      return;
-    }
-
-    setSelectedPlayers((current) => [...current, player]);
-    setCoin((current) => current - player.price);
-
-    // Auto-assign Captain / VC if first two players
-    if (!captainId) {
-      setCaptainId(player.id);
-    } else if (!viceCaptainId) {
-      setViceCaptainId(player.id);
-    }
-
-    playBatShotSound();
-    triggerConfetti();
-    toast.success(`${player.playerName} signed to your Dream XI!`);
-  };
-
-  const removePlayer = (playerId) => {
-    const player = selectedPlayers.find((selected) => selected.id === playerId);
-    if (!player) return;
-
-    setSelectedPlayers((current) => current.filter((selected) => selected.id !== playerId));
-    setCoin((current) => current + player.price);
-
-    if (captainId === playerId) setCaptainId(null);
-    if (viceCaptainId === playerId) setViceCaptainId(null);
-
-    toast.info(`${player.playerName} released from team.`);
-  };
-
-  const clearTeam = () => {
-    setCoin((current) => current + selectedPlayers.reduce((total, player) => total + player.price, 0));
-    setSelectedPlayers([]);
-    setCaptainId(null);
-    setViceCaptainId(null);
-    toast.info('Your team has been cleared.');
-  };
-
-  const handleClaimCoins = (amount) => {
-    setCoin((current) => current + amount);
-    playCoinSound();
-  };
-
-  const handleRewardCoins = (amount) => {
-    setCoin((current) => current + amount);
-  };
-
-  const handleSetCaptain = (id) => {
-    if (viceCaptainId === id) {
-      setViceCaptainId(captainId); // Swap
-    }
-    setCaptainId(id);
-    const p = selectedPlayers.find((pl) => pl.id === id);
-    if (p) toast.success(`👑 ${p.playerName} is now Team Captain (2x Points)!`);
-  };
-
-  const handleSetViceCaptain = (id) => {
-    if (captainId === id) {
-      setCaptainId(viceCaptainId); // Swap
-    }
-    setViceCaptainId(id);
-    const p = selectedPlayers.find((pl) => pl.id === id);
-    if (p) toast.info(`⭐ ${p.playerName} is now Vice-Captain (1.5x Points)!`);
-  };
+function MainAppContent() {
+  const {
+    claimModalOpen,
+    setClaimModalOpen,
+    matchSimOpen,
+    setMatchSimOpen,
+    tournamentModalOpen,
+    setTournamentModalOpen,
+    selectedPlayers,
+    captainId,
+    viceCaptainId,
+    handleClaimCoins,
+    handleRewardCoins,
+  } = useSquad();
 
   return (
     <>
       <ScrollProgress />
       <LiveTicker />
-      <Navbar
-        coin={coin}
-        onOpenClaimModal={() => setClaimModalOpen(true)}
-        isDarkMode={isDarkMode}
-        onToggleDarkMode={toggleDarkMode}
-        onOpenTournamentModal={() => setTournamentModalOpen(true)}
-      />
+      <Navbar />
       <main>
         <Banner />
         <StatsMarquee />
-        <Players
-          players={players}
-          selectedPlayers={selectedPlayers}
-          onAddPlayer={addPlayer}
-          onRemovePlayer={removePlayer}
-          onClearTeam={clearTeam}
-          loading={loading}
-          loadError={loadError}
-          teamLimit={TEAM_LIMIT}
-          captainId={captainId}
-          viceCaptainId={viceCaptainId}
-          onSetCaptain={handleSetCaptain}
-          onSetViceCaptain={handleSetViceCaptain}
-          coin={coin}
-          onOpenMatchSim={() => setMatchSimOpen(true)}
-        />
+        <Players />
         <Newsletter />
       </main>
       <Footer />
@@ -218,6 +75,16 @@ function App() {
 
       <ToastContainer position="top-right" autoClose={2600} newestOnTop />
     </>
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <SquadProvider>
+        <MainAppContent />
+      </SquadProvider>
+    </ThemeProvider>
   );
 }
 

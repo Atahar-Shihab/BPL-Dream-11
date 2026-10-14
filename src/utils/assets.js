@@ -10,3 +10,6 @@ export const USER_PLACEHOLDER = getAssetUrl('assets/user.png');
 export const LOGO_IMG = getAssetUrl('assets/logo.png');
 export const LOGO_FOOTER = getAssetUrl('assets/logo-footer.png');
 export const DATA_JSON_URL = getAssetUrl('data.json');
+export const CURRENCY_IMG = getAssetUrl('assets/Currency.png');
+export const BANNER_MAIN_IMG = getAssetUrl('assets/banner-main.png');
+export const BG_SHADOW_IMG = getAssetUrl('assets/bg-shadow.png');

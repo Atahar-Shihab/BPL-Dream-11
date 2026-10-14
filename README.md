@@ -107,7 +107,7 @@ npm run build
 | **Framework** | [React 19](https://react.dev/) + [Vite](https://vite.dev/) |
 | **3D Graphics** | [Three.js](https://threejs.org/) WebGL Engine |
 | **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) + Custom Keyframe Animations |
-| **Icons** | [Lucide React](https://lucide.dev/) + [React Icons](https://react-icons.github.io/react-icons/) |
+| **Icons** | [Lucide React](https://lucide.dev/) (Unified Icon System) |
 | **Sound Engine** | Web Audio API (Synthesized Real-Time Audio) |
 | **Celebrations** | [Canvas Confetti](https://www.npmjs.com/package/canvas-confetti) |
 | **Notifications** | [React Toastify](https://fkhadra.github.io/react-toastify/) |
