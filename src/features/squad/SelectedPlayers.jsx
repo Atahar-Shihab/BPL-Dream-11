@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { Users, UserPlus, Trash2, Trophy, LayoutList, Shield, Crown, Star } from 'lucide-react';
-import { playRemoveSound, playBatShotSound, playWhooshSound } from '../../utils/soundEffects';
+import { Users, UserPlus, Trash2, Trophy, LayoutList, Shield, Crown, Star, Eye } from 'lucide-react';
+import { playRemoveSound, playBatShotSound, playWhooshSound, playClickSound } from '../../utils/soundEffects';
 import { triggerGrandCelebration } from '../../utils/confetti';
 import { useStaggerReveal } from '../../hooks/useScrollAnimations';
 import CricketPitchView from './CricketPitchView';
 import TeamAnalytics from './TeamAnalytics';
+import PlayerModal from '../players/PlayerModal';
 import { USER_PLACEHOLDER } from '../../utils/assets';
 import { useSquad } from '../../context/useSquad';
 import { useTheme } from '../../context/useTheme';
@@ -24,6 +25,7 @@ const SelectedPlayers = (props) => {
   const teamLimit = props.teamLimit || squad.teamLimit;
   const { t } = useTheme();
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'pitch'
+  const [activeModalPlayer, setActiveModalPlayer] = useState(null);
   const stagger = useStaggerReveal(players.length, 70);
   const celebratedRef = useRef(false);
 
@@ -144,11 +146,18 @@ const SelectedPlayers = (props) => {
                     : ''
                 }`}
               >
-                <div className="relative flex-none">
+                <div
+                  onClick={() => {
+                    playClickSound();
+                    setActiveModalPlayer(player);
+                  }}
+                  className="relative flex-none cursor-pointer group"
+                  title={t('quickView', 'Quick View profile')}
+                >
                   <img
                     src={player.playerImg}
                     alt=""
-                    className="selected-player-image"
+                    className="selected-player-image group-hover:brightness-110 transition"
                     loading="lazy"
                     onError={(e) => { e.currentTarget.src = USER_PLACEHOLDER; }}
                   />
@@ -165,9 +174,17 @@ const SelectedPlayers = (props) => {
                 </div>
 
                 <div className="selected-player-info">
-                  <h3 className="flex items-center gap-2">
+                  <h3
+                    onClick={() => {
+                      playClickSound();
+                      setActiveModalPlayer(player);
+                    }}
+                    className="flex items-center gap-2 cursor-pointer hover:text-yellow-500 dark:hover:text-yellow-400 transition"
+                    title={t('quickView', 'Quick View profile')}
+                  >
                     {player.playerName}
                     {player.isOverseas && <span className="text-xs" title="Overseas Player">🌍</span>}
+                    <Eye className="w-3.5 h-3.5 text-neutral-400 opacity-60 hover:opacity-100" />
                   </h3>
                   <p>{player.playerRole || player.playerType} · {player.playerCountry} · {player.bplTeam || 'Franchise'}</p>
                 </div>
@@ -181,10 +198,10 @@ const SelectedPlayers = (props) => {
                       onSetCaptain(player.id);
                     }}
                     title="Set as Captain (2x Points)"
-                    className={`px-2.5 py-1 rounded-lg text-xs font-extrabold transition flex items-center gap-1 ${
+                    className={`px-2.5 py-1 rounded-lg text-xs font-extrabold transition flex items-center gap-1 cursor-pointer ${
                       isCaptain
                         ? 'bg-yellow-400 text-neutral-950 shadow'
-                        : 'border border-neutral-200 text-neutral-500 hover:border-yellow-400 hover:text-yellow-600'
+                        : 'border border-neutral-200 dark:border-neutral-700 text-neutral-500 hover:border-yellow-400 hover:text-yellow-600'
                     }`}
                   >
                     <Crown className="w-3 h-3" /> C
@@ -197,10 +214,10 @@ const SelectedPlayers = (props) => {
                       onSetViceCaptain(player.id);
                     }}
                     title="Set as Vice-Captain (1.5x Points)"
-                    className={`px-2.5 py-1 rounded-lg text-xs font-extrabold transition flex items-center gap-1 ${
+                    className={`px-2.5 py-1 rounded-lg text-xs font-extrabold transition flex items-center gap-1 cursor-pointer ${
                       isViceCaptain
                         ? 'bg-blue-500 text-white shadow'
-                        : 'border border-neutral-200 text-neutral-500 hover:border-blue-400 hover:text-blue-600'
+                        : 'border border-neutral-200 dark:border-neutral-700 text-neutral-500 hover:border-blue-400 hover:text-blue-600'
                     }`}
                   >
                     <Star className="w-3 h-3" /> VC
@@ -211,7 +228,7 @@ const SelectedPlayers = (props) => {
 
                 <button
                   type="button"
-                  className="remove-player"
+                  className="remove-player cursor-pointer"
                   aria-label={`Remove ${player.playerName}`}
                   onClick={() => {
                     playRemoveSound();
@@ -244,6 +261,22 @@ const SelectedPlayers = (props) => {
           </button>
         )}
       </div>
+
+      {/* Player Modal for Selected Players */}
+      {activeModalPlayer && (
+        <PlayerModal
+          player={activeModalPlayer}
+          isOpen={!!activeModalPlayer}
+          onClose={() => setActiveModalPlayer(null)}
+          isSelected={true}
+          isAtLimit={players.length >= teamLimit}
+          onAddPlayer={() => {}}
+          onRemovePlayer={(id) => {
+            onRemovePlayer(id);
+            setActiveModalPlayer(null);
+          }}
+        />
+      )}
     </div>
   );
 };

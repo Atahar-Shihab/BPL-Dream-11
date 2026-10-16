@@ -29,21 +29,21 @@ const PlayerModal = ({
   const teamTheme = getTeamTheme(player.bplTeam);
 
   // Identify milestone records
-  const lowerName = player.playerName.toLowerCase();
+  const lowerName = (player.playerName || '').toLowerCase();
   let verifiedMilestones = null;
-  if (lowerName.includes('shakib')) {
+  if (lowerName.includes('shakib') && milestonesData?.shakib) {
     verifiedMilestones = [
       { label: 'Centuries', value: milestonesData.shakib.centuries, icon: '🏏' },
       { label: 'BPL Wickets', value: milestonesData.shakib.wickets, icon: '🎯' },
       { label: 'MVP Awards', value: milestonesData.shakib.mvpAwards, icon: '👑' },
     ];
-  } else if (lowerName.includes('tamim')) {
+  } else if (lowerName.includes('tamim') && milestonesData?.tamim) {
     verifiedMilestones = [
       { label: 'Centuries', value: milestonesData.tamim.centuries, icon: '💯' },
       { label: 'Fifties', value: milestonesData.tamim.fifties, icon: '🏏' },
       { label: 'Boundaries', value: milestonesData.tamim.boundaries, icon: '🔥' },
     ];
-  } else if (lowerName.includes('mustafiz')) {
+  } else if (lowerName.includes('mustafiz') && milestonesData?.mustafiz) {
     verifiedMilestones = [
       { label: 'Maiden Overs', value: milestonesData.mustafiz.maidens, icon: '🎯' },
       { label: 'Death Econ', value: milestonesData.mustafiz.deathEconomy, icon: '⚡' },
@@ -54,11 +54,11 @@ const PlayerModal = ({
   // Calculate skill ratings for bar meters
   const battingScore = Math.min(99, Math.round((player.strikeRate || 100) * 0.65));
   const bowlingScore = player.wickets ? Math.min(98, 70 + Math.round(player.wickets / 5)) : 45;
-  const fieldingScore = Math.min(99, Math.round(player.rating * 10));
+  const fieldingScore = Math.min(99, Math.round((player.rating || 9.0) * 10));
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fadeIn"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn"
       role="dialog"
       aria-modal="true"
       onClick={onClose}
@@ -238,7 +238,7 @@ const PlayerModal = ({
           <div>
             <span className="text-xs text-neutral-400 block font-medium">Player Fee</span>
             <span className="text-xl font-black text-neutral-900 dark:text-yellow-300">
-              ${player.price.toLocaleString()}
+              ${(player.price || 0).toLocaleString()}
             </span>
           </div>
 

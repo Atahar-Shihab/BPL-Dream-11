@@ -52,11 +52,12 @@ const AvailablePlayer = ({
             )}
 
             {/* Quick Action Floating Buttons on Image */}
-            <div className="absolute bottom-2.5 right-2.5 z-10 flex items-center gap-1.5">
+            <div className="absolute bottom-2.5 right-2.5 z-30 flex items-center gap-1.5">
               {onComparePlayer && (
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     playClickSound();
                     onComparePlayer(player);
                   }}
@@ -70,7 +71,8 @@ const AvailablePlayer = ({
 
               <button
                 type="button"
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   playClickSound();
                   setModalOpen(true);
                 }}
@@ -82,11 +84,43 @@ const AvailablePlayer = ({
               </button>
             </div>
 
-            {/* Hover overlay on desktop */}
-            <div className="absolute inset-0 bg-neutral-950/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden sm:flex items-center justify-center gap-2 z-10 pointer-events-none">
-              <span className="px-3 py-1.5 rounded-xl bg-white/20 text-white text-xs font-bold backdrop-blur-md flex items-center gap-1.5 shadow-lg">
-                <Eye className="w-3.5 h-3.5" /> {t('quickView', 'Quick View')}
-              </span>
+            {/* Desktop Hover Overlay with fully clickable Quick View & Compare buttons */}
+            <div
+              onClick={() => {
+                playClickSound();
+                setModalOpen(true);
+              }}
+              className="absolute inset-0 bg-neutral-950/65 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hidden sm:flex flex-col items-center justify-center gap-2 z-20 cursor-pointer pointer-events-auto"
+            >
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  playClickSound();
+                  setModalOpen(true);
+                }}
+                aria-label={`View detailed profile for ${player.playerName}`}
+                className="px-4 py-2 rounded-xl bg-white/25 hover:bg-white/35 text-white text-xs font-bold backdrop-blur-md transition flex items-center gap-2 shadow-xl active:scale-95 cursor-pointer border border-white/20"
+              >
+                <Eye className="w-4 h-4 text-yellow-300" />
+                <span>{t('quickView', 'Quick View')}</span>
+              </button>
+
+              {onComparePlayer && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    playClickSound();
+                    onComparePlayer(player);
+                  }}
+                  aria-label={`Compare ${player.playerName}`}
+                  className="px-3 py-1.5 rounded-xl bg-neutral-900/80 hover:bg-neutral-900 text-cyan-300 hover:text-white text-[11px] font-bold backdrop-blur-md transition flex items-center gap-1.5 shadow-md active:scale-95 cursor-pointer border border-cyan-400/30"
+                >
+                  <ArrowRightLeft className="w-3.5 h-3.5" />
+                  <span>{t('compare', 'Compare Stars')}</span>
+                </button>
+              )}
             </div>
 
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/60 to-transparent" />
@@ -105,7 +139,14 @@ const AvailablePlayer = ({
               )}
             </div>
 
-            <h3 className="player-name">
+            <h3
+              onClick={() => {
+                playClickSound();
+                setModalOpen(true);
+              }}
+              className="player-name cursor-pointer hover:text-yellow-500 dark:hover:text-yellow-400 transition"
+              title={t('quickView', 'Quick View profile')}
+            >
               <User className="w-4 h-4 inline mr-1 text-neutral-400" aria-hidden="true" />
               {player.playerName}
             </h3>
