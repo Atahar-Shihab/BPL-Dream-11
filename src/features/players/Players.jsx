@@ -316,12 +316,15 @@ const Players = (props) => {
       )}
 
       {/* Head-to-Head Compare Modal */}
-      <PlayerCompareModal
-        isOpen={compareModalOpen}
-        onClose={() => setCompareModalOpen(false)}
-        allPlayers={players}
-        initialPlayer1Id={comparePlayer1Id}
-      />
+      {compareModalOpen && (
+        <PlayerCompareModal
+          key={comparePlayer1Id || 'compare-modal'}
+          isOpen={compareModalOpen}
+          onClose={() => setCompareModalOpen(false)}
+          allPlayers={players}
+          initialPlayer1Id={comparePlayer1Id}
+        />
+      )}
     </section>
   );
 };

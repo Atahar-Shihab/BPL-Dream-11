@@ -60,7 +60,7 @@ const PlayerCompareModal = ({ isOpen, onClose, allPlayers, initialPlayer1Id }) =
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-fadeIn"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-fadeIn"
       role="dialog"
       aria-modal="true"
       onClick={onClose}
@@ -211,7 +211,7 @@ const PlayerCompareModal = ({ isOpen, onClose, allPlayers, initialPlayer1Id }) =
         </div>
 
         {/* Metric Comparisons */}
-        <div className="p-4 sm:p-5 overflow-y-auto space-y-3">
+        <div className="p-4 sm:p-5 overflow-y-auto space-y-3 flex-1 min-h-0">
           {compareMetrics.map((m, idx) => {
             const isP1Better = m.higherBetter ? m.val1 > m.val2 : m.val1 < m.val2 && m.val1 > 0;
             const isP2Better = m.higherBetter ? m.val2 > m.val1 : m.val2 < m.val1 && m.val2 > 0;
