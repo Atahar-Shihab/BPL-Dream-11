@@ -2,14 +2,16 @@ import { useState } from 'react';
 import { X, Trophy, CheckCircle2, Lock, Zap, Calendar, MapPin, Users } from 'lucide-react';
 import tournamentFixtures from '../../data/tournamentFixtures.json';
 import stadiumVenues from '../../data/stadiumVenues.json';
+import { playClickSound } from '../../utils/soundEffects';
+import { getTeamTheme } from '../../utils/teamThemes';
 
 const INITIAL_STANDINGS = [
-  { rank: 1, name: 'Comilla Victorians', played: 6, won: 5, lost: 1, pts: 10, nrr: '+1.420' },
-  { rank: 2, name: 'Fortune Barishal', played: 6, won: 4, lost: 2, pts: 8, nrr: '+0.885' },
-  { rank: 3, name: 'Your Dream XI', played: 6, won: 4, lost: 2, pts: 8, nrr: '+0.612', isUser: true },
-  { rank: 4, name: 'Rangpur Riders', played: 6, won: 3, lost: 3, pts: 6, nrr: '+0.120' },
-  { rank: 5, name: 'Sylhet Strikers', played: 6, won: 2, lost: 4, pts: 4, nrr: '-0.740' },
-  { rank: 6, name: 'Chattogram Challengers', played: 6, won: 0, lost: 6, pts: 0, nrr: '-2.297' },
+  { rank: 1, name: 'Comilla Victorians', played: 6, won: 5, lost: 1, pts: 10, nrr: '+1.420', form: ['W', 'W', 'L', 'W', 'W'] },
+  { rank: 2, name: 'Fortune Barishal', played: 6, won: 4, lost: 2, pts: 8, nrr: '+0.885', form: ['L', 'W', 'W', 'W', 'L'] },
+  { rank: 3, name: 'Your Dream XI', played: 6, won: 4, lost: 2, pts: 8, nrr: '+0.612', isUser: true, form: ['W', 'L', 'W', 'W', 'W'] },
+  { rank: 4, name: 'Rangpur Riders', played: 6, won: 3, lost: 3, pts: 6, nrr: '+0.120', form: ['W', 'W', 'L', 'L', 'W'] },
+  { rank: 5, name: 'Sylhet Strikers', played: 6, won: 2, lost: 4, pts: 4, nrr: '-0.740', form: ['L', 'L', 'W', 'L', 'L'] },
+  { rank: 6, name: 'Chattogram Challengers', played: 6, won: 0, lost: 6, pts: 0, nrr: '-2.297', form: ['L', 'L', 'L', 'L', 'L'] },
 ];
 
 const TournamentModal = ({
@@ -76,14 +78,17 @@ const TournamentModal = ({
                 BPL 2026 Championship Center
               </h3>
               <p className="text-xs text-neutral-400">
-                Official franchise standings, fixtures, stadiums & achievements
+                Official franchise standings, form guides, fixtures & achievements
               </p>
             </div>
           </div>
           <button
             type="button"
-            onClick={onClose}
-            className="p-2 rounded-full text-neutral-400 hover:text-white hover:bg-neutral-800 transition"
+            onClick={() => {
+              playClickSound();
+              onClose();
+            }}
+            className="p-2 rounded-full text-neutral-400 hover:text-white hover:bg-neutral-800 transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -93,8 +98,11 @@ const TournamentModal = ({
         <div className="flex p-2 bg-neutral-950/40 border-b border-neutral-800 gap-1 sm:gap-2">
           <button
             type="button"
-            onClick={() => setActiveTab('standings')}
-            className={`flex-1 py-2 text-xs font-bold rounded-xl transition ${
+            onClick={() => {
+              playClickSound();
+              setActiveTab('standings');
+            }}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${
               activeTab === 'standings'
                 ? 'bg-yellow-400 text-neutral-950 shadow'
                 : 'text-neutral-400 hover:text-white'
@@ -104,8 +112,11 @@ const TournamentModal = ({
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab('fixtures')}
-            className={`flex-1 py-2 text-xs font-bold rounded-xl transition ${
+            onClick={() => {
+              playClickSound();
+              setActiveTab('fixtures');
+            }}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${
               activeTab === 'fixtures'
                 ? 'bg-yellow-400 text-neutral-950 shadow'
                 : 'text-neutral-400 hover:text-white'
@@ -115,8 +126,11 @@ const TournamentModal = ({
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab('trophies')}
-            className={`flex-1 py-2 text-xs font-bold rounded-xl transition ${
+            onClick={() => {
+              playClickSound();
+              setActiveTab('trophies');
+            }}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${
               activeTab === 'trophies'
                 ? 'bg-yellow-400 text-neutral-950 shadow'
                 : 'text-neutral-400 hover:text-white'
@@ -140,37 +154,63 @@ const TournamentModal = ({
                       <th className="py-3 px-2 text-center">W</th>
                       <th className="py-3 px-2 text-center">L</th>
                       <th className="py-3 px-2 text-center">NRR</th>
+                      <th className="py-3 px-2 text-center hidden sm:table-cell">Recent Form</th>
                       <th className="py-3 px-3 text-right">Pts</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-neutral-800">
-                    {INITIAL_STANDINGS.map((row) => (
-                      <tr
-                        key={row.name}
-                        className={`transition hover:bg-neutral-800/50 ${
-                          row.isUser
-                            ? 'bg-yellow-400/10 font-bold text-yellow-300'
-                            : 'text-neutral-300'
-                        }`}
-                      >
-                        <td className="py-3 px-3 font-mono text-[11px]">{row.rank}</td>
-                        <td className="py-3 px-3 flex items-center gap-2">
-                          <span>{row.name}</span>
-                          {row.isUser && (
-                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-yellow-400 text-neutral-950 font-black">
-                              YOU
-                            </span>
-                          )}
-                        </td>
-                        <td className="py-3 px-2 text-center text-neutral-400">{row.played}</td>
-                        <td className="py-3 px-2 text-center text-emerald-400 font-bold">{row.won}</td>
-                        <td className="py-3 px-2 text-center text-red-400">{row.lost}</td>
-                        <td className="py-3 px-2 text-center font-mono text-[11px] text-neutral-400">
-                          {row.nrr}
-                        </td>
-                        <td className="py-3 px-3 text-right font-black text-white text-sm">{row.pts}</td>
-                      </tr>
-                    ))}
+                    {INITIAL_STANDINGS.map((row) => {
+                      const theme = getTeamTheme(row.name);
+                      return (
+                        <tr
+                          key={row.name}
+                          className={`transition hover:bg-neutral-800/50 ${
+                            row.isUser
+                              ? 'bg-yellow-400/10 font-bold text-yellow-300'
+                              : 'text-neutral-300'
+                          }`}
+                        >
+                          <td className="py-3 px-3 font-mono text-[11px]">{row.rank}</td>
+                          <td className="py-3 px-3 flex items-center gap-2">
+                            {!row.isUser && (
+                              <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded ${theme.bg} ${theme.text}`}>
+                                {theme.short}
+                              </span>
+                            )}
+                            <span>{row.name}</span>
+                            {row.isUser && (
+                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-yellow-400 text-neutral-950 font-black">
+                                YOU
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-3 px-2 text-center text-neutral-400">{row.played}</td>
+                          <td className="py-3 px-2 text-center text-emerald-400 font-bold">{row.won}</td>
+                          <td className="py-3 px-2 text-center text-red-400">{row.lost}</td>
+                          <td className="py-3 px-2 text-center font-mono text-[11px] text-neutral-400">
+                            {row.nrr}
+                          </td>
+                          {/* 5-Match Form Pills */}
+                          <td className="py-3 px-2 text-center hidden sm:table-cell">
+                            <div className="flex items-center justify-center gap-1">
+                              {row.form.map((res, fIdx) => (
+                                <span
+                                  key={fIdx}
+                                  className={`w-4 h-4 rounded-full text-[9px] font-black flex items-center justify-center shadow-xs ${
+                                    res === 'W'
+                                      ? 'bg-emerald-500 text-white'
+                                      : 'bg-rose-500 text-white'
+                                  }`}
+                                >
+                                  {res}
+                                </span>
+                              ))}
+                            </div>
+                          </td>
+                          <td className="py-3 px-3 text-right font-black text-white text-sm">{row.pts}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -198,8 +238,10 @@ const TournamentModal = ({
                           #{fixture.match}
                         </span>
                         <div>
-                          <div className="text-xs font-bold text-white">
-                            {fixture.home} <span className="text-neutral-500 font-normal">vs</span> {fixture.away}
+                          <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                            <span>{fixture.home}</span>
+                            <span className="text-amber-400 font-black text-[11px]">VS</span>
+                            <span>{fixture.away}</span>
                           </div>
                           <div className="text-[11px] text-neutral-400 flex items-center gap-1 mt-0.5">
                             <MapPin className="w-3 h-3 text-emerald-400" /> {fixture.venue}
@@ -207,6 +249,9 @@ const TournamentModal = ({
                         </div>
                       </div>
                       <div className="flex items-center gap-2 self-end sm:self-auto">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                          {fixture.match === 1 ? 'Matchday 1 • Tonight' : `Matchday ${fixture.match}`}
+                        </span>
                         <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-neutral-800 text-neutral-300">
                           {fixture.time} BST
                         </span>

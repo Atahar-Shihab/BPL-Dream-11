@@ -2,8 +2,8 @@ import { useState, useMemo } from 'react';
 import AvailablePlayer from './AvailablePlayer';
 import SelectedPlayers from '../squad/SelectedPlayers';
 import { useStaggerReveal, useScrollReveal } from '../../hooks/useScrollAnimations';
-import { playWhooshSound } from '../../utils/soundEffects';
-import { Search, ArrowRightLeft } from 'lucide-react';
+import { playWhooshSound, playClickSound } from '../../utils/soundEffects';
+import { Search, ArrowRightLeft, X } from 'lucide-react';
 import PlayerGridSkeleton from '../../components/ui/PlayerGridSkeleton';
 import PlayerCompareModal from './PlayerCompareModal';
 import { useSquad } from '../../context/useSquad';
@@ -45,6 +45,7 @@ const Players = (props) => {
   const [filterFranchise, setFilterFranchise] = useState('All Franchises');
   const [sortBy, setSortBy] = useState('name');
   const [compareModalOpen, setCompareModalOpen] = useState(false);
+  const [comparePlayer1Id, setComparePlayer1Id] = useState(null);
 
   const selectedIds = new Set(selectedPlayers.map((player) => player.id));
   const { ref: sectionRef, isVisible: sectionVisible } = useScrollReveal({ threshold: 0.05 });
@@ -157,7 +158,7 @@ const Players = (props) => {
       {/* Search & Filter Bar (visible only for Available tab) */}
       {selectedType === 'available' && !loading && !loadError && (
         <div className="flex flex-wrap items-center gap-2.5 mb-6 animate-fadeIn">
-          {/* Search Box */}
+          {/* Search Box with Clear Button */}
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 dark:text-neutral-500 pointer-events-none" />
             <input
@@ -166,15 +167,32 @@ const Players = (props) => {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t('searchPlaceholder', 'Search by name, team, country...')}
               aria-label="Search players by name, team, or country"
-              className="w-full pl-9 pr-3 py-2.5 text-sm rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 outline-none transition"
+              className="w-full pl-9 pr-8 py-2.5 text-sm rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 outline-none transition"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => {
+                  playClickSound();
+                  setSearchQuery('');
+                }}
+                aria-label="Clear search"
+                title="Clear search"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-neutral-400 hover:text-neutral-700 dark:hover:text-white transition cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
 
           {/* Role Filter */}
           <div className="relative">
             <select
               value={filterRole}
-              onChange={(e) => setFilterRole(e.target.value)}
+              onChange={(e) => {
+                playClickSound();
+                setFilterRole(e.target.value);
+              }}
               aria-label="Filter players by role"
               className="px-3 py-2.5 text-xs font-semibold rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-800 dark:text-white focus:border-yellow-400 outline-none cursor-pointer"
             >
@@ -190,7 +208,10 @@ const Players = (props) => {
           <div className="relative">
             <select
               value={filterFranchise}
-              onChange={(e) => setFilterFranchise(e.target.value)}
+              onChange={(e) => {
+                playClickSound();
+                setFilterFranchise(e.target.value);
+              }}
               aria-label="Filter players by franchise"
               className="px-3 py-2.5 text-xs font-semibold rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-800 dark:text-white focus:border-yellow-400 outline-none cursor-pointer"
             >
@@ -205,7 +226,10 @@ const Players = (props) => {
           {/* Sort Dropdown */}
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
+            onChange={(e) => {
+              playClickSound();
+              setSortBy(e.target.value);
+            }}
             aria-label="Sort players"
             className="px-3 py-2.5 text-xs font-semibold rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-800 dark:text-white focus:border-yellow-400 outline-none cursor-pointer"
           >
@@ -245,6 +269,10 @@ const Players = (props) => {
                   isAtLimit={selectedPlayers.length >= teamLimit}
                   onAddPlayer={onAddPlayer}
                   onRemovePlayer={onRemovePlayer}
+                  onComparePlayer={(p) => {
+                    setComparePlayer1Id(p.id);
+                    setCompareModalOpen(true);
+                  }}
                 />
               </div>
             ))}
@@ -277,6 +305,7 @@ const Players = (props) => {
         isOpen={compareModalOpen}
         onClose={() => setCompareModalOpen(false)}
         allPlayers={players}
+        initialPlayer1Id={comparePlayer1Id}
       />
     </section>
   );

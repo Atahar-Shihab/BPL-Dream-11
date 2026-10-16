@@ -1,7 +1,43 @@
 import { useState } from 'react';
-import { Crown, Star, X } from 'lucide-react';
-import { playBatShotSound, playWhooshSound } from '../../utils/soundEffects';
+import { Crown, Star, X, Shield } from 'lucide-react';
+import { playBatShotSound, playWhooshSound, playClickSound } from '../../utils/soundEffects';
 import { USER_PLACEHOLDER } from '../../utils/assets';
+
+const FORMATIONS = {
+  '3-1-2': {
+    name: '3-1-2 Balanced',
+    slots: [
+      { title: 'WK / Keeper End', top: '12%', left: '50%' },
+      { title: 'Slip / Gully', top: '26%', left: '25%' },
+      { title: 'Cover / Offside', top: '35%', left: '75%' },
+      { title: 'Mid-Wicket Crease', top: '56%', left: '30%' },
+      { title: 'Inner Circle / All-Round', top: '62%', left: '70%' },
+      { title: 'Bowling Strike End', top: '84%', left: '50%' },
+    ],
+  },
+  '4-1-1': {
+    name: '4-1-1 Power Batting',
+    slots: [
+      { title: 'WK / Opener', top: '10%', left: '50%' },
+      { title: 'Top-Order 1', top: '24%', left: '20%' },
+      { title: 'Top-Order 2', top: '24%', left: '80%' },
+      { title: 'Power Striker', top: '44%', left: '50%' },
+      { title: 'All-Round Finisher', top: '64%', left: '68%' },
+      { title: 'Strike Bowler', top: '84%', left: '50%' },
+    ],
+  },
+  '2-2-2': {
+    name: '2-2-2 Bowling Attack',
+    slots: [
+      { title: 'WK / Top Order', top: '12%', left: '50%' },
+      { title: 'Anchor Batter', top: '30%', left: '28%' },
+      { title: 'All-Rounder 1', top: '46%', left: '72%' },
+      { title: 'All-Rounder 2', top: '58%', left: '28%' },
+      { title: 'Pace Bowler', top: '76%', left: '70%' },
+      { title: 'Death Yorker End', top: '86%', left: '46%' },
+    ],
+  },
+};
 
 const CricketPitchView = ({
   selectedPlayers,
@@ -13,19 +49,19 @@ const CricketPitchView = ({
   teamLimit = 6,
 }) => {
   const [activePlayer, setActivePlayer] = useState(null);
+  const [activeFormation, setActiveFormation] = useState('3-1-2');
 
-  // Ordered list of selected players to place into 6 tactical slots
-  const slots = [
-    { title: 'WK / Keeper End', top: '12%', left: '50%' },
-    { title: 'Slip / Gully', top: '26%', left: '25%' },
-    { title: 'Cover / Offside', top: '35%', left: '75%' },
-    { title: 'Mid-Wicket Crease', top: '56%', left: '30%' },
-    { title: 'Inner Circle / All-Round', top: '62%', left: '70%' },
-    { title: 'Bowling Strike End', top: '84%', left: '50%' },
-  ];
+  const currentFormation = FORMATIONS[activeFormation] || FORMATIONS['3-1-2'];
+  const slots = currentFormation.slots;
 
   return (
     <div className="cricket-pitch-container relative overflow-hidden rounded-3xl border-4 border-emerald-600/60 shadow-2xl bg-gradient-to-b from-emerald-800 via-emerald-700 to-emerald-900 select-none min-h-[580px] p-4 sm:p-6 text-white flex flex-col justify-between">
+      {/* 4 Stadium Corner Floodlight Beams */}
+      <div className="pointer-events-none absolute -top-10 -left-10 w-64 h-64 bg-radial from-white/30 via-yellow-100/10 to-transparent rounded-full blur-2xl" />
+      <div className="pointer-events-none absolute -top-10 -right-10 w-64 h-64 bg-radial from-white/30 via-yellow-100/10 to-transparent rounded-full blur-2xl" />
+      <div className="pointer-events-none absolute -bottom-10 -left-10 w-64 h-64 bg-radial from-white/20 via-emerald-100/10 to-transparent rounded-full blur-2xl" />
+      <div className="pointer-events-none absolute -bottom-10 -right-10 w-64 h-64 bg-radial from-white/20 via-emerald-100/10 to-transparent rounded-full blur-2xl" />
+
       {/* Stadium Pitch Grass Stripes & Circles */}
       <div className="absolute inset-0 pointer-events-none opacity-20 bg-[repeating-linear-gradient(0deg,#000_0px,#000_28px,transparent_28px,transparent_56px)]" />
 
@@ -43,14 +79,36 @@ const CricketPitchView = ({
         <div className="w-16 h-1 bg-white/70 shadow" />
       </div>
 
-      {/* Pitch Header Info */}
-      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 bg-black/40 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/10">
+      {/* Pitch Header Info & Tactical Formation Switcher */}
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 bg-black/50 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/10">
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-          <span className="text-xs font-bold uppercase tracking-wider text-emerald-300">
-            Tactical 2.5D Formation View
+          <span className="text-xs font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1">
+            <Shield className="w-3.5 h-3.5 text-emerald-400" />
+            Tactical Formation:
           </span>
+          {/* Tactical Formation Switcher Pills */}
+          <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
+            {Object.keys(FORMATIONS).map((fKey) => (
+              <button
+                key={fKey}
+                type="button"
+                onClick={() => {
+                  playClickSound();
+                  setActiveFormation(fKey);
+                }}
+                className={`px-2 py-0.5 rounded-lg text-[10px] font-black transition cursor-pointer ${
+                  activeFormation === fKey
+                    ? 'bg-yellow-400 text-neutral-950 shadow-sm'
+                    : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                {fKey}
+              </button>
+            ))}
+          </div>
         </div>
+
         <div className="flex items-center gap-3 text-xs">
           <span className="flex items-center gap-1 text-yellow-300 font-bold">
             <Crown className="w-3.5 h-3.5 fill-current" /> (C) = 2x Points

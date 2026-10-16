@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Sparkles, Trophy } from 'lucide-react';
+import { Sparkles, Trophy, Users, CheckCircle2 } from 'lucide-react';
 import ThreeCricketStadium from './ThreeCricketStadium';
 import { useScrollReveal } from '../../hooks/useScrollAnimations';
 import { BG_SHADOW_IMG } from '../../utils/assets';
 import { useSquad } from '../../context/useSquad';
 import { useTheme } from '../../context/useTheme';
+import { playClickSound } from '../../utils/soundEffects';
 
 const TYPE_STRINGS_EN = [
   'Ultimate Dream XI',
@@ -20,7 +21,7 @@ const TYPE_STRINGS_BN = [
 
 const Banner = () => {
   const { ref: bannerRef, isVisible } = useScrollReveal({ threshold: 0.05 });
-  const { setTournamentModalOpen } = useSquad();
+  const { setTournamentModalOpen, selectedPlayers, coin, teamLimit } = useSquad();
   const { language, t } = useTheme();
 
   const typeStrings = language === 'bn' ? TYPE_STRINGS_BN : TYPE_STRINGS_EN;
@@ -59,6 +60,9 @@ const Banner = () => {
     return () => clearTimeout(timeout);
   }, [charIndex, isDeleting, stringIndex, typeStrings]);
 
+  const squadCount = selectedPlayers.length;
+  const isSquadFull = squadCount >= teamLimit;
+
   return (
     <section
       ref={bannerRef}
@@ -73,7 +77,7 @@ const Banner = () => {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover object-top opacity-95 sm:object-center"
       />
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-transparent via-neutral-950/20 to-neutral-950/80" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-transparent via-neutral-950/30 to-neutral-950/90" />
 
       {/* Animated dot grid overlay */}
       <div className="pointer-events-none absolute inset-0 -z-5 opacity-[0.06] bg-[radial-gradient(#e7fb25_1px,transparent_1px)] [background-size:20px_20px]" />
@@ -82,10 +86,30 @@ const Banner = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 items-center gap-8 lg:gap-12">
           {/* Left Column (7 cols): Heading, Typewriter, CTAs & Stat Badges */}
           <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left">
-            {/* Season Badge Pill */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-yellow-400/10 border border-yellow-400/25 text-yellow-300 text-xs font-bold tracking-wide mb-4 shadow-sm backdrop-blur-sm">
-              <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
-              <span>{t('seasonBadge', 'Official BPL 2026 Edition')}</span>
+            {/* Season Badge & Live Squad Pulse Pill */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 mb-4">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-yellow-400/10 border border-yellow-400/25 text-yellow-300 text-xs font-bold tracking-wide shadow-sm backdrop-blur-sm">
+                <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
+                <span>{t('seasonBadge', 'Official BPL 2026 Edition')}</span>
+              </div>
+
+              {/* Dynamic Live Squad Pulse Widget */}
+              <a
+                href="#players"
+                onClick={playClickSound}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-neutral-900/80 border border-neutral-700/80 hover:border-yellow-400/50 text-neutral-200 text-xs font-bold backdrop-blur-md transition shadow-sm group"
+                title="View your current squad status"
+              >
+                <span className={`w-2 h-2 rounded-full ${isSquadFull ? 'bg-emerald-400 animate-pulse' : squadCount > 0 ? 'bg-amber-400 animate-ping' : 'bg-neutral-500'}`} />
+                <span className="flex items-center gap-1 text-[11px]">
+                  <Users className="w-3 h-3 text-neutral-400 group-hover:text-yellow-400 transition" />
+                  <span>{squadCount}/{teamLimit}</span>
+                  <span className="text-neutral-400">Drafted</span>
+                </span>
+                <span className="text-[10px] text-yellow-400/90 font-mono pl-1 border-l border-neutral-700">
+                  ${coin.toLocaleString()}
+                </span>
+              </a>
             </div>
 
             <h1 className="max-w-xl text-white font-extrabold tracking-tight">
@@ -105,12 +129,19 @@ const Banner = () => {
             </p>
 
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mt-6 sm:mt-8">
-              <a href="#players" className="primary-button">
+              <a
+                href="#players"
+                onClick={playClickSound}
+                className="primary-button cursor-pointer"
+              >
                 {t('explorePlayers', 'Explore Players')}
               </a>
               <button
                 type="button"
-                onClick={() => setTournamentModalOpen(true)}
+                onClick={() => {
+                  playClickSound();
+                  setTournamentModalOpen(true);
+                }}
                 className="secondary-button bg-white/10 text-white border border-white/20 hover:bg-white/20 flex items-center gap-1.5 cursor-pointer"
               >
                 <Trophy className="w-4 h-4 text-yellow-400" />
@@ -129,15 +160,27 @@ const Banner = () => {
                 <span className="text-[11px] text-white/70 font-semibold">{t('captain', 'Captain')} 2x</span>
               </div>
               <div className="stat-badge animate-slideUp" style={{ animationDelay: '0.6s' }}>
-                <span className="text-xl font-black text-blue-400">65K</span>
-                <span className="text-[11px] text-white/70 font-semibold">{t('coins', 'Coins')}</span>
+                <span className="text-xl font-black text-blue-400">
+                  {isSquadFull ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400 mx-auto" />
+                  ) : squadCount > 0 ? (
+                    `${teamLimit - squadCount} Left`
+                  ) : (
+                    'Ready'
+                  )}
+                </span>
+                <span className="text-[11px] text-white/70 font-semibold">
+                  {isSquadFull ? 'XI Ready' : 'Squad Open'}
+                </span>
               </div>
             </div>
           </div>
 
           {/* Right Column (5 cols): Interactive 3D Stadium Sphere with Radial Ambient Glow */}
-          <div className="lg:col-span-5 flex items-center justify-center relative mt-4 lg:mt-0">
-            <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400/20 via-emerald-400/10 to-transparent blur-3xl pointer-events-none rounded-full transform scale-90" />
+          <div className="lg:col-span-5 flex items-center justify-center relative mt-6 lg:mt-0">
+            {/* Multi-layered stadium ambient backlights */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400/25 via-emerald-500/15 to-cyan-500/15 blur-3xl pointer-events-none rounded-full transform scale-110" />
+            <div className="absolute -inset-4 bg-radial from-amber-500/20 to-transparent blur-2xl pointer-events-none" />
             <div className="relative z-10 w-full max-w-sm flex justify-center">
               <ThreeCricketStadium />
             </div>

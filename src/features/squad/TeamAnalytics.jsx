@@ -24,6 +24,14 @@ const TeamAnalytics = ({
     const bowlCount = selectedPlayers.filter((p) => p.playerType === 'Bowler').length;
     const overseasCount = selectedPlayers.filter((p) => p.isOverseas).length;
 
+    // Batting Firepower (0-100)
+    const avgSR = selectedPlayers.reduce((acc, p) => acc + (p.strikeRate || 100), 0) / (selectedPlayers.length || 1);
+    const battingPower = Math.min(99, Math.round(avgSR * 0.68));
+
+    // Bowling Threat (0-100)
+    const totalWickets = selectedPlayers.reduce((acc, p) => acc + (p.wickets || 0), 0);
+    const bowlingThreat = Math.min(99, Math.round(40 + (totalWickets / (selectedPlayers.length || 1)) * 0.7));
+
     // Power Score out of 100
     let powerScore = Math.round(Number(avgRating) * 10);
     if (captainId) powerScore += 3;
@@ -41,6 +49,8 @@ const TeamAnalytics = ({
       bowlCount,
       overseasCount,
       powerScore,
+      battingPower,
+      bowlingThreat,
       isOverseasValid: overseasCount <= 4,
       hasWicketkeeper: wkCount >= 1,
     };
@@ -103,7 +113,7 @@ const TeamAnalytics = ({
           <button
             type="button"
             onClick={copySquadToClipboard}
-            className="px-3 py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 text-xs font-bold hover:bg-neutral-100 dark:hover:bg-neutral-700 transition flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 text-xs font-bold hover:bg-neutral-100 dark:hover:bg-neutral-700 transition flex items-center gap-1.5 cursor-pointer"
           >
             <Share2 className="w-3.5 h-3.5" /> Share
           </button>
@@ -111,7 +121,7 @@ const TeamAnalytics = ({
           <button
             type="button"
             onClick={handleDownloadPoster}
-            className="px-3 py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 text-xs font-bold hover:bg-neutral-100 dark:hover:bg-neutral-700 transition flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 text-xs font-bold hover:bg-neutral-100 dark:hover:bg-neutral-700 transition flex items-center gap-1.5 cursor-pointer"
             title="Download high-resolution squad poster image"
           >
             <Download className="w-3.5 h-3.5 text-yellow-500" /> Download Poster
@@ -121,7 +131,7 @@ const TeamAnalytics = ({
             <button
               type="button"
               onClick={onOpenMatchSim}
-              className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-400 text-neutral-950 text-xs font-black shadow-md hover:brightness-105 active:scale-95 transition flex items-center gap-1.5 animate-pulse"
+              className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-400 text-neutral-950 text-xs font-black shadow-md hover:brightness-105 active:scale-95 transition flex items-center gap-1.5 animate-pulse cursor-pointer"
             >
               <Zap className="w-3.5 h-3.5" /> Simulate Match
             </button>
@@ -190,7 +200,36 @@ const TeamAnalytics = ({
         </div>
       </div>
 
-      {/* Role Balance Pills & Warnings */}
+      {/* Visual Attribute Strength Meters & Leadership Bonus */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 py-3 border-t border-neutral-100 dark:border-neutral-800">
+        <div className="p-3 rounded-xl bg-neutral-50/70 dark:bg-neutral-800/30 border border-neutral-100 dark:border-neutral-800 space-y-2">
+          <div className="flex justify-between items-center text-xs font-bold">
+            <span className="text-neutral-600 dark:text-neutral-300">Batting Firepower & Depth</span>
+            <span className="text-amber-500 font-extrabold">{stats.battingPower}%</span>
+          </div>
+          <div className="h-2 rounded-full bg-neutral-200 dark:bg-neutral-700 overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full transition-all duration-500"
+              style={{ width: `${stats.battingPower}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="p-3 rounded-xl bg-neutral-50/70 dark:bg-neutral-800/30 border border-neutral-100 dark:border-neutral-800 space-y-2">
+          <div className="flex justify-between items-center text-xs font-bold">
+            <span className="text-neutral-600 dark:text-neutral-300">Bowling & Death Economy</span>
+            <span className="text-blue-500 font-extrabold">{stats.bowlingThreat}%</span>
+          </div>
+          <div className="h-2 rounded-full bg-neutral-200 dark:bg-neutral-700 overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full transition-all duration-500"
+              style={{ width: `${stats.bowlingThreat}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Leadership Multipliers & Warnings */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-neutral-100 dark:border-neutral-800 text-xs">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-neutral-400 font-medium">Composition:</span>
@@ -208,9 +247,31 @@ const TeamAnalytics = ({
           </span>
         </div>
 
+        {/* Leadership Multiplier Badges */}
+        <div className="flex items-center gap-2">
+          <span
+            className={`px-2.5 py-1 rounded-lg font-bold text-[11px] flex items-center gap-1 ${
+              captainId
+                ? 'bg-yellow-400/20 text-yellow-500 dark:text-yellow-300 border border-yellow-400/40'
+                : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-400'
+            }`}
+          >
+            (C) {captainId ? '+100% Active' : 'Unassigned'}
+          </span>
+          <span
+            className={`px-2.5 py-1 rounded-lg font-bold text-[11px] flex items-center gap-1 ${
+              viceCaptainId
+                ? 'bg-blue-400/20 text-blue-500 dark:text-blue-300 border border-blue-400/40'
+                : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-400'
+            }`}
+          >
+            (VC) {viceCaptainId ? '+50% Active' : 'Unassigned'}
+          </span>
+        </div>
+
         {/* Validation warnings */}
         {!stats.hasWicketkeeper && (
-          <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-bold">
+          <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-bold w-full pt-1">
             <AlertTriangle className="w-4 h-4 flex-none" />
             <span>Add at least 1 Wicketkeeper!</span>
           </div>

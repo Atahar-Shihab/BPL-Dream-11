@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
-import { X, Star, Activity, Plus } from 'lucide-react';
-import { playBatShotSound, playWhooshSound } from '../../utils/soundEffects';
+import { X, Star, Activity, Plus, Award } from 'lucide-react';
+import { playBatShotSound, playClickSound } from '../../utils/soundEffects';
 import { USER_PLACEHOLDER } from '../../utils/assets';
+import { getTeamTheme } from '../../utils/teamThemes';
+import milestonesData from '../../data/playerMilestones.json';
 
 const PlayerModal = ({
   player,
@@ -23,6 +25,31 @@ const PlayerModal = ({
   }, [isOpen, onClose]);
 
   if (!isOpen || !player) return null;
+
+  const teamTheme = getTeamTheme(player.bplTeam);
+
+  // Identify milestone records
+  const lowerName = player.playerName.toLowerCase();
+  let verifiedMilestones = null;
+  if (lowerName.includes('shakib')) {
+    verifiedMilestones = [
+      { label: 'Centuries', value: milestonesData.shakib.centuries, icon: '🏏' },
+      { label: 'BPL Wickets', value: milestonesData.shakib.wickets, icon: '🎯' },
+      { label: 'MVP Awards', value: milestonesData.shakib.mvpAwards, icon: '👑' },
+    ];
+  } else if (lowerName.includes('tamim')) {
+    verifiedMilestones = [
+      { label: 'Centuries', value: milestonesData.tamim.centuries, icon: '💯' },
+      { label: 'Fifties', value: milestonesData.tamim.fifties, icon: '🏏' },
+      { label: 'Boundaries', value: milestonesData.tamim.boundaries, icon: '🔥' },
+    ];
+  } else if (lowerName.includes('mustafiz')) {
+    verifiedMilestones = [
+      { label: 'Maiden Overs', value: milestonesData.mustafiz.maidens, icon: '🎯' },
+      { label: 'Death Econ', value: milestonesData.mustafiz.deathEconomy, icon: '⚡' },
+      { label: 'Dot Balls', value: milestonesData.mustafiz.dotBalls, icon: '🛑' },
+    ];
+  }
 
   // Calculate skill ratings for bar meters
   const battingScore = Math.min(99, Math.round((player.strikeRate || 100) * 0.65));
@@ -47,10 +74,10 @@ const PlayerModal = ({
           <button
             type="button"
             onClick={() => {
-              playWhooshSound();
+              playClickSound();
               onClose();
             }}
-            className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/40 text-white/80 hover:text-white hover:bg-black/70 backdrop-blur-sm transition"
+            className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/40 text-white/80 hover:text-white hover:bg-black/70 backdrop-blur-sm transition cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -83,20 +110,40 @@ const PlayerModal = ({
               <h2 className="text-2xl font-black text-white mt-1 leading-tight">
                 {player.playerName}
               </h2>
-              <p className="text-xs text-yellow-400/90 font-medium">
-                {player.bplTeam || 'Franchise Star'}
-              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${teamTheme.bg} ${teamTheme.border} ${teamTheme.text}`}>
+                  {player.bplTeam || 'Franchise Star'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 space-y-5 max-h-[60vh] overflow-y-auto">
+        <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
           {/* Bio */}
           {player.bio && (
             <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-300 italic bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-xl border border-neutral-200/60 dark:border-neutral-800">
               "{player.bio}"
             </p>
+          )}
+
+          {/* Hall of Fame Career Milestones Banner (if verified) */}
+          {verifiedMilestones && (
+            <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-500/10 via-yellow-500/15 to-amber-500/10 border border-yellow-500/30">
+              <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-amber-500 dark:text-amber-400 mb-2">
+                <Award className="w-4 h-4" /> BPL Career Records & Hall of Fame
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-center">
+                {verifiedMilestones.map((m, idx) => (
+                  <div key={idx} className="p-2 rounded-xl bg-white/60 dark:bg-neutral-900/60 border border-yellow-500/20">
+                    <span className="text-base">{m.icon}</span>
+                    <p className="text-sm font-black text-neutral-900 dark:text-yellow-300">{m.value}</p>
+                    <p className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 uppercase">{m.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
           {/* Quick Stat Tiles */}
