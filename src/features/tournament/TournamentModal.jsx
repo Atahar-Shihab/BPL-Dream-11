@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { X, Trophy, CheckCircle2, Lock, Zap, Calendar, MapPin, Users } from 'lucide-react';
+import { X, Trophy, CheckCircle2, Lock, Zap, Calendar, MapPin, Users, Sparkles } from 'lucide-react';
 import tournamentFixtures from '../../data/tournamentFixtures.json';
 import stadiumVenues from '../../data/stadiumVenues.json';
 import { playClickSound } from '../../utils/soundEffects';
 import { getTeamTheme } from '../../utils/teamThemes';
+import ThreeCricketStadium from '../hero/ThreeCricketStadium';
 
 const INITIAL_STANDINGS = [
   { rank: 1, name: 'Comilla Victorians', played: 6, won: 5, lost: 1, pts: 10, nrr: '+1.420', form: ['W', 'W', 'L', 'W', 'W'] },
@@ -292,39 +293,56 @@ const TournamentModal = ({
           )}
 
           {activeTab === 'trophies' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {achievements.map((ach) => (
-                <div
-                  key={ach.id}
-                  className={`p-4 rounded-2xl border transition-all ${
-                    ach.unlocked
-                      ? 'bg-gradient-to-br from-neutral-900 to-neutral-950 border-emerald-500/40 shadow-lg'
-                      : 'bg-neutral-950/60 border-neutral-800/80 opacity-70'
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl p-2 rounded-2xl bg-neutral-800 flex-none">
-                      {ach.icon}
-                    </span>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-black">{ach.title}</h4>
-                        {ach.unlocked ? (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-none" />
-                        ) : (
-                          <Lock className="w-4 h-4 text-neutral-500 flex-none" />
-                        )}
-                      </div>
-                      <p className="text-xs text-neutral-400 mt-1">{ach.desc}</p>
-                      <span className={`inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        ach.unlocked ? 'bg-emerald-500/20 text-emerald-300' : 'bg-neutral-800 text-neutral-500'
-                      }`}>
-                        {ach.unlocked ? 'Unlocked ✓' : 'Incomplete'}
+            <div className="space-y-4">
+              {/* 3D Interactive BPL Championship Trophy Showcase */}
+              <div className="p-4 rounded-3xl bg-gradient-to-b from-neutral-950 via-neutral-900 to-neutral-950 border border-yellow-500/30 text-center relative overflow-hidden shadow-inner">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-400/10 border border-yellow-400/30 text-yellow-300 text-xs font-black uppercase tracking-wider mb-2">
+                  <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
+                  3D Interactive Championship Trophy
+                </div>
+                <p className="text-xs text-neutral-400 mb-3">
+                  Inspect the official BPL 2026 Gold Cup in 360° • Drag to rotate
+                </p>
+                <div className="w-full flex justify-center">
+                  <ThreeCricketStadium initialMode="trophy" />
+                </div>
+              </div>
+
+              {/* Achievements Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {achievements.map((ach) => (
+                  <div
+                    key={ach.id}
+                    className={`p-4 rounded-2xl border transition-all ${
+                      ach.unlocked
+                        ? 'bg-gradient-to-br from-neutral-900 to-neutral-950 border-emerald-500/40 shadow-lg'
+                        : 'bg-neutral-950/60 border-neutral-800/80 opacity-70'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="text-2xl p-2 rounded-2xl bg-neutral-800 flex-none">
+                        {ach.icon}
                       </span>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-black">{ach.title}</h4>
+                          {ach.unlocked ? (
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-none" />
+                          ) : (
+                            <Lock className="w-4 h-4 text-neutral-500 flex-none" />
+                          )}
+                        </div>
+                        <p className="text-xs text-neutral-400 mt-1">{ach.desc}</p>
+                        <span className={`inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          ach.unlocked ? 'bg-emerald-500/20 text-emerald-300' : 'bg-neutral-800 text-neutral-500'
+                        }`}>
+                          {ach.unlocked ? 'Unlocked ✓' : 'Incomplete'}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </div>
