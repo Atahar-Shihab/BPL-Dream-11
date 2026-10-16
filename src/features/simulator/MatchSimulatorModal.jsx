@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Play, RotateCcw, Trophy, Star, Crown, Award, Loader2, Sparkles } from 'lucide-react';
 import { playBatShotSound, playCheerSound, playRemoveSound } from '../../utils/soundEffects';
 import { triggerGrandCelebration, triggerCoinShower } from '../../utils/confetti';
@@ -44,7 +45,23 @@ const MatchSimulatorModal = ({
     };
   }, []);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (!isOpen) return;
+    const orig = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = orig;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen || typeof document === 'undefined') return null;
 
   const captain = selectedPlayers.find((p) => p.id === captainId) || selectedPlayers[0];
   const viceCaptain = selectedPlayers.find((p) => p.id === viceCaptainId) || selectedPlayers[1] || selectedPlayers[0];
@@ -170,11 +187,12 @@ const MatchSimulatorModal = ({
   );
   const mvpPlayer = topPlayerId ? selectedPlayers.find((p) => p.id === Number(topPlayerId)) : null;
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-fadeIn"
       role="dialog"
       aria-modal="true"
+      onClick={onClose}
     >
       <div
         className="relative w-full max-w-2xl overflow-hidden rounded-3xl bg-neutral-900 border border-neutral-800 text-white shadow-2xl flex flex-col max-h-[90vh]"
@@ -393,7 +411,8 @@ const MatchSimulatorModal = ({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

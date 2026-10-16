@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Star, Activity, Plus, Award } from 'lucide-react';
 import { playBatShotSound, playClickSound } from '../../utils/soundEffects';
 import { USER_PLACEHOLDER } from '../../utils/assets';
@@ -15,16 +16,23 @@ const PlayerModal = ({
   onRemovePlayer,
 }) => {
   useEffect(() => {
+    if (!isOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
     };
-    if (isOpen) {
-      window.addEventListener('keydown', handleKeyDown);
-    }
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [isOpen, onClose]);
 
-  if (!isOpen || !player) return null;
+  if (!isOpen || !player || typeof document === 'undefined') return null;
 
   const teamTheme = getTeamTheme(player.bplTeam);
 
@@ -56,7 +64,7 @@ const PlayerModal = ({
   const bowlingScore = player.wickets ? Math.min(98, 70 + Math.round(player.wickets / 5)) : 45;
   const fieldingScore = Math.min(99, Math.round((player.rating || 9.0) * 10));
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn"
       role="dialog"
@@ -272,7 +280,8 @@ const PlayerModal = ({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

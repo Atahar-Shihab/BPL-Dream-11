@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Coins, Sparkles, Trophy, Zap, Gift } from 'lucide-react';
 import { playCoinSound, playCheerSound } from '../../utils/soundEffects';
 import { triggerCoinShower } from '../../utils/confetti';
@@ -13,7 +14,23 @@ const PACKAGES = [
 const ClaimCoinsModal = ({ isOpen, onClose, onClaimCoins }) => {
   const [claimingId, setClaimingId] = useState(null);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (!isOpen) return;
+    const orig = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = orig;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen || typeof document === 'undefined') return null;
 
   const handleClaim = (pkg) => {
     setClaimingId(pkg.id);
@@ -29,12 +46,13 @@ const ClaimCoinsModal = ({ isOpen, onClose, onClaimCoins }) => {
     }, 400);
   };
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fadeIn"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
+      onClick={onClose}
     >
       <div
         className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xl p-6 sm:p-8"
@@ -122,7 +140,8 @@ const ClaimCoinsModal = ({ isOpen, onClose, onClaimCoins }) => {
           </p>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

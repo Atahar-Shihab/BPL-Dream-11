@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import AvailablePlayer from './AvailablePlayer';
 import SelectedPlayers from '../squad/SelectedPlayers';
+import PlayerModal from './PlayerModal';
 import { useStaggerReveal, useScrollReveal } from '../../hooks/useScrollAnimations';
 import { playWhooshSound, playClickSound } from '../../utils/soundEffects';
 import { Search, ArrowRightLeft, X } from 'lucide-react';
@@ -46,6 +47,7 @@ const Players = (props) => {
   const [sortBy, setSortBy] = useState('name');
   const [compareModalOpen, setCompareModalOpen] = useState(false);
   const [comparePlayer1Id, setComparePlayer1Id] = useState(null);
+  const [quickViewPlayer, setQuickViewPlayer] = useState(null);
 
   const selectedIds = new Set(selectedPlayers.map((player) => player.id));
   const { ref: sectionRef, isVisible: sectionVisible } = useScrollReveal({ threshold: 0.05 });
@@ -268,7 +270,7 @@ const Players = (props) => {
                   isSelected={selectedIds.has(player.id)}
                   isAtLimit={selectedPlayers.length >= teamLimit}
                   onAddPlayer={onAddPlayer}
-                  onRemovePlayer={onRemovePlayer}
+                  onQuickView={(p) => setQuickViewPlayer(p)}
                   onComparePlayer={(p) => {
                     setComparePlayer1Id(p.id);
                     setCompareModalOpen(true);
@@ -297,6 +299,19 @@ const Players = (props) => {
           coin={coin}
           onOpenMatchSim={onOpenMatchSim}
           teamLimit={teamLimit}
+        />
+      )}
+
+      {/* Single Quick View Player Profile Modal */}
+      {quickViewPlayer && (
+        <PlayerModal
+          player={quickViewPlayer}
+          isOpen={Boolean(quickViewPlayer)}
+          onClose={() => setQuickViewPlayer(null)}
+          isSelected={selectedIds.has(quickViewPlayer.id)}
+          isAtLimit={selectedPlayers.length >= teamLimit}
+          onAddPlayer={onAddPlayer}
+          onRemovePlayer={onRemovePlayer}
         />
       )}
 

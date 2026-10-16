@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, ArrowRightLeft, Trophy, Check } from 'lucide-react';
 import { playWhooshSound, playClickSound } from '../../utils/soundEffects';
 import { USER_PLACEHOLDER } from '../../utils/assets';
@@ -14,7 +15,23 @@ const PlayerCompareModal = ({ isOpen, onClose, allPlayers, initialPlayer1Id }) =
       : (allPlayers[2]?.id || 2)
   );
 
-  if (!isOpen || !allPlayers.length) return null;
+  useEffect(() => {
+    if (!isOpen) return;
+    const orig = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = orig;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen || !allPlayers.length || typeof document === 'undefined') return null;
 
   const p1 = allPlayers.find((p) => p.id === Number(player1Id)) || allPlayers[0];
   const p2 = allPlayers.find((p) => p.id === Number(player2Id)) || allPlayers[1];
@@ -41,11 +58,12 @@ const PlayerCompareModal = ({ isOpen, onClose, allPlayers, initialPlayer1Id }) =
     if (isP2Better) p2Wins += 1;
   });
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-fadeIn"
       role="dialog"
       aria-modal="true"
+      onClick={onClose}
     >
       <div
         className="relative w-full max-w-2xl overflow-hidden rounded-3xl bg-neutral-900 border border-neutral-800 text-white shadow-2xl flex flex-col max-h-[90vh]"
@@ -250,7 +268,8 @@ const PlayerCompareModal = ({ isOpen, onClose, allPlayers, initialPlayer1Id }) =
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
