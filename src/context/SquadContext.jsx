@@ -202,6 +202,112 @@ export const SquadProvider = ({ children }) => {
     if (p) toast.info(`⭐ ${p.playerName} is now Vice-Captain (1.5x Points)!`);
   }, [captainId, selectedPlayers, viceCaptainId]);
 
+  const autoDraftTeam = useCallback(() => {
+    if (!players || !players.length) return;
+
+    if (selectedPlayers.length >= TEAM_LIMIT) {
+      toast.info('Your Dream XI is already complete! Clear team to auto-draft fresh.');
+      return;
+    }
+
+    const currentSpent = selectedPlayers.reduce((sum, p) => sum + p.price, 0);
+    const totalBudget = coin + currentSpent;
+
+    const selectedIds = new Set(selectedPlayers.map((p) => p.id));
+    const newSquad = [...selectedPlayers];
+
+    const hasWk = newSquad.some((p) => p.playerType.toLowerCase().includes('wicketkeeper'));
+    const batCount = newSquad.filter((p) => p.playerType === 'Batsman').length;
+    const arCount = newSquad.filter((p) => p.playerType === 'All-Rounder').length;
+    const bowlCount = newSquad.filter((p) => p.playerType === 'Bowler').length;
+
+    const availablePool = [...players]
+      .filter((p) => !selectedIds.has(p.id))
+      .sort((a, b) => b.rating - a.rating || a.price - b.price);
+
+    const canAdd = (p, currentList, budgetLimit) => {
+      const currentCost = currentList.reduce((sum, item) => sum + item.price, 0);
+      if (currentCost + p.price > budgetLimit) return false;
+      const overseasCount = currentList.filter((item) => item.isOverseas).length;
+      if (p.isOverseas && overseasCount >= 4) return false;
+      return true;
+    };
+
+    // 1. Ensure at least 1 Wicketkeeper
+    if (!hasWk && newSquad.length < TEAM_LIMIT) {
+      const wkCandidate = availablePool.find(
+        (p) => !selectedIds.has(p.id) && p.playerType.toLowerCase().includes('wicketkeeper') && canAdd(p, newSquad, totalBudget)
+      );
+      if (wkCandidate) {
+        newSquad.push(wkCandidate);
+        selectedIds.add(wkCandidate.id);
+      }
+    }
+
+    // 2. Ensure at least 1 Bowler
+    if (bowlCount < 1 && newSquad.length < TEAM_LIMIT) {
+      const bowlCandidate = availablePool.find(
+        (p) => !selectedIds.has(p.id) && p.playerType === 'Bowler' && canAdd(p, newSquad, totalBudget)
+      );
+      if (bowlCandidate) {
+        newSquad.push(bowlCandidate);
+        selectedIds.add(bowlCandidate.id);
+      }
+    }
+
+    // 3. Ensure at least 1 Batsman
+    if (batCount < 1 && newSquad.length < TEAM_LIMIT) {
+      const batCandidate = availablePool.find(
+        (p) => !selectedIds.has(p.id) && p.playerType === 'Batsman' && canAdd(p, newSquad, totalBudget)
+      );
+      if (batCandidate) {
+        newSquad.push(batCandidate);
+        selectedIds.add(batCandidate.id);
+      }
+    }
+
+    // 4. Ensure at least 1 All-Rounder
+    if (arCount < 1 && newSquad.length < TEAM_LIMIT) {
+      const arCandidate = availablePool.find(
+        (p) => !selectedIds.has(p.id) && p.playerType === 'All-Rounder' && canAdd(p, newSquad, totalBudget)
+      );
+      if (arCandidate) {
+        newSquad.push(arCandidate);
+        selectedIds.add(arCandidate.id);
+      }
+    }
+
+    // 5. Fill remaining slots with the highest rated affordable players
+    for (const p of availablePool) {
+      if (newSquad.length >= TEAM_LIMIT) break;
+      if (!selectedIds.has(p.id) && canAdd(p, newSquad, totalBudget)) {
+        newSquad.push(p);
+        selectedIds.add(p.id);
+      }
+    }
+
+    if (newSquad.length === selectedPlayers.length) {
+      toast.warning('Not enough budget to auto-pick more stars. Claim a free grant in the top bar!');
+      return;
+    }
+
+    const newTotalSpent = newSquad.reduce((sum, p) => sum + p.price, 0);
+    const remainingCoin = totalBudget - newTotalSpent;
+
+    const sortedByRating = [...newSquad].sort((a, b) => b.rating - a.rating);
+    const newCaptain = sortedByRating[0]?.id || null;
+    const newViceCaptain = sortedByRating[1]?.id || null;
+
+    setSelectedPlayers(newSquad);
+    setCoin(remainingCoin);
+    setCaptainId(newCaptain);
+    setViceCaptainId(newViceCaptain);
+
+    playBatShotSound();
+    triggerConfetti();
+    toast.success(`✨ Auto-drafted ${newSquad.length}/${TEAM_LIMIT} Dream XI with optimal roles!`);
+  }, [coin, players, selectedPlayers]);
+
   return (
     <SquadContext.Provider
       value={{
@@ -222,6 +328,7 @@ export const SquadProvider = ({ children }) => {
         addPlayer,
         removePlayer,
         clearTeam,
+        autoDraftTeam,
         handleClaimCoins,
         handleRewardCoins,
         handleSetCaptain,

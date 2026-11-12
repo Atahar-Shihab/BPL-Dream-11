@@ -51,5 +51,10 @@
   "battingPower": "ব্যাটিং শক্তি",
   "bowlingThreat": "বোলিং গভীরতা",
   "hallOfFame": "বিপিএল ক্যারিয়ার রেকর্ডস ও হল অব ফেম",
-  "formGuide": "সাম্প্রতিক ফর্ম"
+  "formGuide": "সাম্প্রতিক ফর্ম",
+  "autoPick": "অটো-পিক ড্রিম একাদশ",
+  "autoFill": "অটো-ফিল স্কোয়াড",
+  "needCoins": "কয়েন প্রয়োজন",
+  "resetFilters": "ফিল্টার রিসেট করুন",
+  "overseasStars": "বিদেশি তারকা"
 }

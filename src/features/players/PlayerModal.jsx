@@ -4,6 +4,8 @@ import { X, Star, Activity, Plus, Award } from 'lucide-react';
 import { playBatShotSound, playClickSound } from '../../utils/soundEffects';
 import { USER_PLACEHOLDER } from '../../utils/assets';
 import { getTeamTheme } from '../../utils/teamThemes';
+import { useSquad } from '../../context/useSquad';
+import { useTheme } from '../../context/useTheme';
 import milestonesData from '../../data/playerMilestones.json';
 
 const PlayerModal = ({
@@ -15,6 +17,9 @@ const PlayerModal = ({
   onAddPlayer,
   onRemovePlayer,
 }) => {
+  const { coin, setClaimModalOpen } = useSquad();
+  const { t } = useTheme();
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -34,6 +39,7 @@ const PlayerModal = ({
 
   if (!isOpen || !player || typeof document === 'undefined') return null;
 
+  const canAfford = coin >= (player.price || 0);
   const teamTheme = getTeamTheme(player.bplTeam);
 
   // Identify milestone records
@@ -258,9 +264,30 @@ const PlayerModal = ({
                   onRemovePlayer(player.id);
                   onClose();
                 }}
-                className="px-4 py-2.5 text-xs font-bold rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition"
+                className="px-4 py-2.5 text-xs font-bold rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition cursor-pointer"
               >
                 Release Player
+              </button>
+            ) : isAtLimit ? (
+              <button
+                type="button"
+                disabled
+                className="px-6 py-2.5 text-xs font-bold rounded-xl bg-neutral-200 dark:bg-neutral-800 text-neutral-400 cursor-not-allowed opacity-60"
+              >
+                Team Limit Reached
+              </button>
+            ) : !canAfford ? (
+              <button
+                type="button"
+                onClick={() => {
+                  playClickSound();
+                  onClose();
+                  setClaimModalOpen(true);
+                }}
+                title="Claim free coins to sign this player"
+                className="px-6 py-2.5 text-xs font-black rounded-xl bg-amber-400 text-neutral-950 hover:bg-amber-300 transition shadow-lg flex items-center gap-1.5 cursor-pointer"
+              >
+                {t('needCoins', 'Need Coins')} 💰
               </button>
             ) : (
               <button
@@ -270,11 +297,10 @@ const PlayerModal = ({
                   onAddPlayer(player);
                   onClose();
                 }}
-                disabled={isAtLimit}
-                className="px-6 py-2.5 text-xs font-bold rounded-xl bg-yellow-400 text-neutral-950 hover:bg-yellow-300 disabled:opacity-50 transition shadow-lg flex items-center gap-1.5"
+                className="px-6 py-2.5 text-xs font-bold rounded-xl bg-yellow-400 text-neutral-950 hover:bg-yellow-300 transition shadow-lg flex items-center gap-1.5 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
-                {isAtLimit ? 'Team Limit Reached' : 'Sign to Dream XI'}
+                {t('choosePlayer', 'Sign to Dream XI')}
               </button>
             )}
           </div>

@@ -4,13 +4,22 @@ import SelectedPlayers from '../squad/SelectedPlayers';
 import PlayerModal from './PlayerModal';
 import { useStaggerReveal, useScrollReveal } from '../../hooks/useScrollAnimations';
 import { playWhooshSound, playClickSound } from '../../utils/soundEffects';
-import { Search, ArrowRightLeft, X } from 'lucide-react';
+import { Search, ArrowRightLeft, X, Sparkles, ArrowRight } from 'lucide-react';
 import PlayerGridSkeleton from '../../components/ui/PlayerGridSkeleton';
 import PlayerCompareModal from './PlayerCompareModal';
 import { useSquad } from '../../context/useSquad';
 import { useTheme } from '../../context/useTheme';
 
 const PLAYER_TYPES = ['All Roles', 'Batsman', 'Bowler', 'All-Rounder', 'Wicketkeeper-Batsman'];
+
+const ROLE_PILLS = [
+  { id: 'All Roles', label: 'All Players', icon: null },
+  { id: 'Batsman', label: 'Batsmen', icon: '🏏' },
+  { id: 'Bowler', label: 'Bowlers', icon: '🎯' },
+  { id: 'All-Rounder', label: 'All-Rounders', icon: '⚡' },
+  { id: 'Wicketkeeper-Batsman', label: 'Wicketkeepers', icon: '🧤' },
+  { id: 'Overseas', label: 'Overseas Stars', icon: '🌍' },
+];
 
 const FRANCHISES = [
   'All Franchises',
@@ -29,6 +38,7 @@ const Players = (props) => {
   const onAddPlayer = props.onAddPlayer || squad.addPlayer;
   const onRemovePlayer = props.onRemovePlayer || squad.removePlayer;
   const onClearTeam = props.onClearTeam || squad.clearTeam;
+  const autoDraftTeam = props.autoDraftTeam || squad.autoDraftTeam;
   const loading = props.loading !== undefined ? props.loading : squad.loading;
   const loadError = props.loadError !== undefined ? props.loadError : squad.loadError;
   const teamLimit = props.teamLimit || squad.teamLimit;
@@ -52,6 +62,18 @@ const Players = (props) => {
   const selectedIds = new Set(selectedPlayers.map((player) => player.id));
   const { ref: sectionRef, isVisible: sectionVisible } = useScrollReveal({ threshold: 0.05 });
 
+  // Role category counts
+  const roleCounts = useMemo(() => {
+    return {
+      'All Roles': players.length,
+      'Batsman': players.filter((p) => p.playerType === 'Batsman').length,
+      'Bowler': players.filter((p) => p.playerType === 'Bowler').length,
+      'All-Rounder': players.filter((p) => p.playerType === 'All-Rounder').length,
+      'Wicketkeeper-Batsman': players.filter((p) => p.playerType === 'Wicketkeeper-Batsman').length,
+      'Overseas': players.filter((p) => p.isOverseas).length,
+    };
+  }, [players]);
+
   // Filter and sort available players
   const filteredPlayers = useMemo(() => {
     let result = [...players];
@@ -69,7 +91,9 @@ const Players = (props) => {
     }
 
     // Role filter
-    if (filterRole !== 'All Roles') {
+    if (filterRole === 'Overseas') {
+      result = result.filter((p) => p.isOverseas);
+    } else if (filterRole !== 'All Roles') {
       result = result.filter((p) => p.playerType === filterRole);
     }
 
@@ -114,6 +138,37 @@ const Players = (props) => {
         </h2>
 
         <div className="flex flex-wrap items-center gap-3">
+          {/* Smart Auto-Draft Optimal XI trigger */}
+          {selectedType === 'available' && (
+            <button
+              type="button"
+              onClick={() => {
+                playWhooshSound();
+                if (autoDraftTeam) autoDraftTeam();
+              }}
+              disabled={selectedPlayers.length >= teamLimit}
+              title={
+                selectedPlayers.length >= teamLimit
+                  ? 'Dream XI squad complete'
+                  : 'Automatically draft balanced Dream XI with top stars and leadership'
+              }
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer ${
+                selectedPlayers.length >= teamLimit
+                  ? 'opacity-50 cursor-not-allowed bg-neutral-100 dark:bg-neutral-800 text-neutral-400 border border-neutral-200 dark:border-neutral-700'
+                  : 'bg-gradient-to-r from-yellow-400 to-amber-400 text-neutral-950 hover:brightness-105 active:scale-95'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-neutral-950" />
+              <span>
+                {selectedPlayers.length === 0
+                  ? `✨ ${t('autoPick', 'Auto-Pick Dream XI')}`
+                  : selectedPlayers.length >= teamLimit
+                  ? `${t('teamFull', 'Team Full')} ✓`
+                  : `✨ ${t('autoFill', 'Auto-Fill Squad')}`}
+              </span>
+            </button>
+          )}
+
           {/* Compare Players trigger */}
           {players.length >= 2 && (
             <button
@@ -156,6 +211,40 @@ const Players = (props) => {
           </div>
         </div>
       </div>
+
+      {/* Quick Role Category Filter Chips */}
+      {selectedType === 'available' && !loading && !loadError && (
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 mb-4 no-scrollbar">
+          {ROLE_PILLS.map((pill) => {
+            const isActive = filterRole === pill.id;
+            return (
+              <button
+                key={pill.id}
+                type="button"
+                onClick={() => {
+                  playClickSound();
+                  setFilterRole(pill.id);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                  isActive
+                    ? 'bg-yellow-400 text-neutral-950 shadow-sm border border-yellow-500/30 font-extrabold'
+                    : 'bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:border-neutral-300 dark:hover:border-neutral-700'
+                }`}
+              >
+                {pill.icon && <span>{pill.icon}</span>}
+                <span>{pill.label}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                    isActive ? 'bg-neutral-950/15 text-neutral-950' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500'
+                  }`}
+                >
+                  {roleCounts[pill.id] || 0}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Search & Filter Bar (visible only for Available tab) */}
       {selectedType === 'available' && !loading && !loadError && (
@@ -280,10 +369,29 @@ const Players = (props) => {
             ))}
           </div>
         ) : (
-          <div className="players-message">
-            {searchQuery || filterRole !== 'All Roles' || filterFranchise !== 'All Franchises'
-              ? 'No players match your search criteria. Try adjusting your filters.'
-              : 'No players are available right now.'}
+          <div className="p-8 sm:p-12 text-center rounded-3xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 my-6 shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-yellow-400/15 text-yellow-500 mx-auto flex items-center justify-center mb-3 text-xl">
+              🔍
+            </div>
+            <h3 className="text-base font-extrabold text-neutral-800 dark:text-white">
+              No matching players found
+            </h3>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-sm mx-auto mt-1 mb-4">
+              We couldn't find any players matching "{searchQuery || filterRole}". Try resetting your filters.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                playClickSound();
+                setSearchQuery('');
+                setFilterRole('All Roles');
+                setFilterFranchise('All Franchises');
+                setSortBy('name');
+              }}
+              className="px-4 py-2 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-neutral-950 text-xs font-bold transition shadow-sm cursor-pointer"
+            >
+              Reset All Filters
+            </button>
           </div>
         )
       ) : (
@@ -300,6 +408,63 @@ const Players = (props) => {
           onOpenMatchSim={onOpenMatchSim}
           teamLimit={teamLimit}
         />
+      )}
+
+      {/* Floating Quick Squad Dock (Only visible in Available Players tab when squad has members) */}
+      {selectedType === 'available' && selectedPlayers.length > 0 && (
+        <aside
+          aria-label="Floating squad progress bar"
+          className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-xl p-3 px-4 rounded-2xl bg-neutral-950/90 text-white border border-white/15 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-3 animate-slideUp"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="relative flex-none">
+              <div
+                className={`w-10 h-10 rounded-xl font-black text-xs flex items-center justify-center shadow ${
+                  selectedPlayers.length === teamLimit
+                    ? 'bg-emerald-400 text-neutral-950 ring-2 ring-emerald-300/50'
+                    : 'bg-yellow-400 text-neutral-950 ring-2 ring-yellow-300/50'
+                }`}
+              >
+                {selectedPlayers.length}/{teamLimit}
+              </div>
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black text-white truncate">Dream XI Roster</span>
+                <span className="text-[11px] font-mono text-yellow-300 font-bold flex-none">
+                  ${coin.toLocaleString()} left
+                </span>
+              </div>
+              <div className="text-[10px] text-neutral-400 flex items-center gap-1.5 mt-0.5 truncate">
+                <span>
+                  {selectedPlayers.filter((p) => p.playerType.toLowerCase().includes('wicketkeeper')).length} WK
+                </span>
+                ·<span>{selectedPlayers.filter((p) => p.playerType === 'Batsman').length} BAT</span>·
+                <span>{selectedPlayers.filter((p) => p.playerType === 'All-Rounder').length} AR</span>·
+                <span>{selectedPlayers.filter((p) => p.playerType === 'Bowler').length} BOWL</span>
+                {selectedPlayers.filter((p) => p.isOverseas).length > 0 && (
+                  <span className="text-blue-300 font-medium">
+                    · {selectedPlayers.filter((p) => p.isOverseas).length} 🌍
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              playWhooshSound();
+              setSelectedType('selected');
+              const el = document.getElementById('players');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="flex-none px-3.5 py-2 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-neutral-950 text-xs font-black transition flex items-center gap-1.5 shadow active:scale-95 cursor-pointer whitespace-nowrap"
+          >
+            <span>{selectedPlayers.length === teamLimit ? 'Field View & XI' : 'Review Squad'}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </aside>
       )}
 
       {/* Single Quick View Player Profile Modal */}

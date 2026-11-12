@@ -3,6 +3,7 @@ import TiltCard3D from '../../components/ui/TiltCard3D';
 import { playBatShotSound, playClickSound } from '../../utils/soundEffects';
 import { USER_PLACEHOLDER } from '../../utils/assets';
 import { useTheme } from '../../context/useTheme';
+import { useSquad } from '../../context/useSquad';
 import { getTeamTheme } from '../../utils/teamThemes';
 
 const AvailablePlayer = ({
@@ -15,7 +16,9 @@ const AvailablePlayer = ({
   style,
 }) => {
   const { t } = useTheme();
+  const { coin, setClaimModalOpen } = useSquad();
   const teamTheme = getTeamTheme(player.bplTeam);
+  const canAfford = coin >= player.price;
 
   return (
     <TiltCard3D className="player-card-3d" style={style}>
@@ -174,18 +177,50 @@ const AvailablePlayer = ({
 
             <div className="player-card-footer">
               <strong>${player.price.toLocaleString()}</strong>
-              <button
-                type="button"
-                onClick={() => {
-                  if (!isSelected && !isAtLimit) playBatShotSound();
-                  onAddPlayer(player);
-                }}
-                disabled={isSelected || isAtLimit}
-                aria-label={isSelected ? `${player.playerName} is selected` : isAtLimit ? 'Team limit reached' : `Add ${player.playerName} to squad for $${player.price.toLocaleString()}`}
-                className={isSelected ? 'choose-button is-selected cursor-pointer' : 'choose-button cursor-pointer'}
-              >
-                {isSelected ? `${t('selectedText', 'Selected')} ✓` : isAtLimit ? t('teamFull', 'Team Full') : t('choosePlayer', 'Choose Player')}
-              </button>
+              {isSelected ? (
+                <button
+                  type="button"
+                  disabled
+                  aria-label={`${player.playerName} is selected`}
+                  className="choose-button is-selected cursor-default"
+                >
+                  {t('selectedText', 'Selected')} ✓
+                </button>
+              ) : isAtLimit ? (
+                <button
+                  type="button"
+                  disabled
+                  aria-label="Team limit reached"
+                  className="choose-button cursor-not-allowed opacity-60"
+                >
+                  {t('teamFull', 'Team Full')}
+                </button>
+              ) : !canAfford ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClickSound();
+                    setClaimModalOpen(true);
+                  }}
+                  title="Claim free coins to sign this player"
+                  aria-label={`Claim free coins to sign ${player.playerName}`}
+                  className="choose-button cursor-pointer border-amber-400/80 text-amber-600 dark:text-amber-400 hover:bg-amber-400/10 font-bold"
+                >
+                  {t('needCoins', 'Need Coins')} 💰
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    playBatShotSound();
+                    onAddPlayer(player);
+                  }}
+                  aria-label={`Add ${player.playerName} to squad for $${player.price.toLocaleString()}`}
+                  className="choose-button cursor-pointer"
+                >
+                  {t('choosePlayer', 'Choose Player')}
+                </button>
+              )}
             </div>
           </div>
         </article>

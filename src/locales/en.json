@@ -51,5 +51,10 @@
   "battingPower": "Batting Firepower",
   "bowlingThreat": "Bowling Threat",
   "hallOfFame": "BPL Career Records & Hall of Fame",
-  "formGuide": "Recent Form"
+  "formGuide": "Recent Form",
+  "autoPick": "Auto-Pick Dream XI",
+  "autoFill": "Auto-Fill Squad",
+  "needCoins": "Need Coins",
+  "resetFilters": "Reset All Filters",
+  "overseasStars": "Overseas Stars"
 }
